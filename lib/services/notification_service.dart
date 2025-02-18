@@ -1,5 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:insurance/appointment_screen/appointment_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // class NotificationService {
 //   static final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
@@ -50,13 +53,21 @@ class NotificationService {
   final _messaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _isFlutterLocalNotificationsInitilized = false;
+  // static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> initialize() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await _requestPermission();
     await _setupMessageHandlers();
-    final token = await _messaging.getToken();
-    print("FCM Token: $token");
+    final fcmtoken = await _messaging.getToken();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.setString("fcmtoken", fcmtoken.toString());
+    print("FCM Token: $fcmtoken");
+  }
+
+  Future<String?> getFcmToken() async {
+    // Retrieve and return the FCM token
+    return await _messaging.getToken();
   }
 
   Future<void> _requestPermission() async {
@@ -109,6 +120,9 @@ class NotificationService {
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         print("Notification tapped: ${response.payload}");
+
+        // Handle notification tap
+        // _handleNotificationTap(response.payload);
       },
     );
 
@@ -123,23 +137,34 @@ class NotificationService {
     _isFlutterLocalNotificationsInitilized = true;
   }
 
+  //  void _handleNotificationTap(String? payload) {
+  //   if (payload != null) {
+  //     navigatorKey.currentState?.push(
+  //       MaterialPageRoute(builder: (context) => AppointmentScreen()),
+  //     );
+  //   }
+  // }
+
   Future<void> showNotification(RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
 
     if (notification != null && android != null) {
       await _localNotifications.show(
-          0,
-          message.notification?.title ?? "No Title",
-          message.notification?.body ?? "No Body",
-          const NotificationDetails(
-              android: AndroidNotificationDetails(
+        0,
+        message.notification?.title ?? "No Title",
+        message.notification?.body ?? "No Body",
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
             'high_importance_channel',
             'High Importance Notifications',
             importance: Importance.max,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
-          )));
+          ),
+        ),
+        //  payload: "appointment_screen",
+      );
     }
   }
 

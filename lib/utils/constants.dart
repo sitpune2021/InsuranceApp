@@ -27,4 +27,7 @@ class Constants {
       "http://192.168.1.57:3005/addappointmentapp";
   static const String completedAppointments =
       "http://192.168.1.57:3005/getcompletedappointmentfortechnician?technician_id=";
+
+  static const String updateFcmToken =
+      "http://192.168.1.57:3005/updateFcmToken";
 }

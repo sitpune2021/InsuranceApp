@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:insurance/dashboard_screen/dashboard_screen.dart';
-import 'package:insurance/home_screen/home_screen.dart';
-import 'package:insurance/utils/utils.dart';
 
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});

@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:insurance/appointment_details/appointment_details.dart';
 import 'package:insurance/appointment_screen/model/appointment.dart';
 import 'package:insurance/services/auth.dart';
@@ -167,14 +168,32 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                             itemCount: filteredAppointments.length,
                             itemBuilder: (context, index) {
                               final appointment = filteredAppointments[index];
-                              return _buildRow(
-                                appointment.appointment_id,
-                                appointment.clientName,
-                                appointment.medicalTests,
-                                appointment.time,
-                                appointment.date,
-                                appointment.appointment_no,
-                                appointment.mobileno,
+                              return Slidable(
+                                endActionPane: ActionPane(
+                                  motion: const BehindMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (context) {
+                                        // Add your action for delete
+                                        print(
+                                            "Delete ${appointment.appointment_id}");
+                                      },
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.delete,
+                                      label: 'Delete',
+                                    ),
+                                  ],
+                                ),
+                                child: _buildRow(
+                                  appointment.appointment_id,
+                                  appointment.clientName,
+                                  appointment.medicalTests,
+                                  appointment.time,
+                                  appointment.date,
+                                  appointment.appointment_no,
+                                  appointment.mobileno,
+                                ),
                               );
                             }),
                   ),

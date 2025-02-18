@@ -69,6 +69,15 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   List<File> _images = []; // List to store selected images
   bool _imageLoading = false; // Loading state
 
+  List<String> _remarks = [
+    "Patient not available",
+    "Technical issue",
+    "Incomplete documents",
+    "Other"
+  ];
+
+  String? _selectedRemark;
+
   // Get address from latitude/longitude
   Future<String> _getAddressFromPosition(Position position) async {
     try {
@@ -294,14 +303,29 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       request.fields['latitude'] = latitude?.toString() ?? '';
       request.fields['longitude'] = longitude?.toString() ?? '';
 
-      //new fields
-      request.fields['video'] =
-          _vedio != null ? _vedio!.path : 'no vedio selected';
+      // //new fields
+      // request.fields['video'] =
+      //     _vedio != null ? _vedio!.path : 'no vedio selected';
+      // Add video file to request (if available)
+      if (_vedio != null) {
+        final videoFile = File(_vedio!.path);
+
+        if (await videoFile.exists()) {
+          print("Video File Exists: ${_vedio!.path}"); // Debugging
+          request.files.add(
+            await http.MultipartFile.fromPath('video', _vedio!.path),
+          );
+        } else {
+          print("Video file does not exist at ${_vedio!.path}");
+        }
+      }
+
       request.fields['urine_test'] = urineCheck.toString();
       request.fields['ecg_test'] = ecgCheck.toString();
       request.fields['blood_test'] = bloodCheck.toString();
       request.fields['test_completed'] = _testStatus.toString();
-      request.fields['reason'] = '';
+      // request.fields['reason'] = '';
+      request.fields['reason'] = _selectedRemark ?? "not selected";
 
       final response = await request.send();
 
@@ -376,7 +400,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
         ..initialize().then((_) {
           setState(() {
             _isVedioLoding = false;
-            _videoController!.play();
+            // _videoController!.play();
           });
         });
     } else {
@@ -891,16 +915,16 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                readOnly: true,
-                controller: _timeController,
-                decoration: const InputDecoration(
-                  labelText: "Time",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
+              // TextField(
+              //   readOnly: true,
+              //   controller: _timeController,
+              //   decoration: const InputDecoration(
+              //     labelText: "Time",
+              //     border: OutlineInputBorder(),
+              //   ),
+              //   keyboardType: TextInputType.phone,
+              // ),
+              // const SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -1077,26 +1101,38 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
               ),
 
               _testStatus == TestStatus.notCompleted
-                  ? const Column(
+                  ? Column(
                       children: [
-                        TextField(
-                          decoration: InputDecoration(
+                        DropdownButtonFormField<String>(
+                          dropdownColor: Colors.white,
+                          decoration: const InputDecoration(
                             labelText: "Remark",
-                            hintText: "Enter Remark",
                             border: OutlineInputBorder(),
                           ),
-                          keyboardType: TextInputType.text,
+
+                          value: _selectedRemark, // Selected value
+                          items: _remarks.map((String remark) {
+                            return DropdownMenuItem<String>(
+                              value: remark,
+                              child: Text(
+                                remark,
+                                style: TextStyle(fontWeight: FontWeight.normal),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedRemark = newValue!;
+                            });
+                          },
                         ),
-                        SizedBox(
-                          height: 16,
-                        )
+                        const SizedBox(height: 16),
                       ],
                     )
-                  : const SizedBox(
-                      height: 1,
-                    ),
+                  : const SizedBox(height: 1),
 
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
                     onTap: _pickImage, // Function to pick multiple images
@@ -1180,34 +1216,72 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                                 borderRadius: BorderRadius.circular(8.0),
                                 child: Stack(
                                   children: [
-                                    SizedBox(
-                                      width: double
-                                          .infinity, // Match container width
-                                      height: 500, // Match container height
-                                      child: FittedBox(
-                                        fit: BoxFit
-                                            .cover, // Ensures video fits nicely
+                                    if (_vedio !=
+                                        null) // Show video only if it's selected
+                                      Transform.rotate(
+                                        angle: 90 *
+                                            3.1415926535 /
+                                            180, // Convert degrees to radians
                                         child: SizedBox(
-                                          width: _videoController!
-                                              .value.size.width,
-                                          height: _videoController!
-                                              .value.size.height,
-                                          child: VideoPlayer(_videoController!),
+                                          width: double.infinity,
+                                          height: 500,
+                                          child: FittedBox(
+                                            fit: BoxFit.cover,
+                                            child: SizedBox(
+                                              width: _videoController!
+                                                  .value.size.width,
+                                              height: _videoController!
+                                                  .value.size.height,
+                                              child: VideoPlayer(
+                                                  _videoController!),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Positioned(
-                                      top: 50,
-                                      left: MediaQuery.of(context).size.width /
-                                              2 -
-                                          30,
-                                      child: TextButton(
-                                        onPressed: () {
-                                          _videoController!.play();
-                                        },
-                                        child: const Text("Play"),
+
+                                    // Delete button (Only visible when video exists)
+                                    if (_vedio != null)
+                                      Positioned(
+                                        top: 0,
+                                        right: 10,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _vedio = null;
+                                              _videoController
+                                                  ?.dispose(); // Dispose the controller
+                                              _videoController = null;
+                                            });
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color:
+                                                  Colors.red.withOpacity(0.8),
+                                            ),
+                                            padding: const EdgeInsets.all(4),
+                                            child: const Icon(Icons.close,
+                                                size: 16, color: Colors.white),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+
+                                    // Play button (Only visible when video exists)
+                                    if (_vedio != null)
+                                      Positioned(
+                                        top: 50,
+                                        left:
+                                            MediaQuery.of(context).size.width /
+                                                    2 -
+                                                50,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.play_circle,
+                                              size: 32),
+                                          onPressed: () {
+                                            _videoController!.play();
+                                          },
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),

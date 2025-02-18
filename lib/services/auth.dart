@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:insurance/appointment_screen/model/appointment.dart';
 import 'package:insurance/model/user.dart';
+import 'package:insurance/services/notification_service.dart';
 import 'package:insurance/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,6 +40,27 @@ class Auth {
           prefs.setString('username', user.username);
 
           print("userdata :$user");
+
+          final fcmtoken = await NotificationService.intance.getFcmToken();
+          if (fcmtoken != null) {
+            // Send the FCM token to the backend
+            final fcmresponse = await http.post(
+              Uri.parse(Constants.updateFcmToken),
+              headers: <String, String>{'Content-Type': 'application/json'},
+              body: jsonEncode(
+                <String, dynamic>{'mobileno': name, 'fcmtokenkey': fcmtoken},
+              ),
+            );
+
+            if (fcmresponse.statusCode == 200) {
+              print("FCM token successfully updated on the server.");
+            } else {
+              print("Failed to update FCM token on the server.");
+            }
+          } else {
+            print("FCM token is null. Can't send it to the server.");
+          }
+
           return true;
         }
       } else {
@@ -58,7 +80,7 @@ class Auth {
     int? userid = preferences.getInt("id");
     try {
       String url = Constants.totalAppointmentUrl;
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url + userid.toString()));
       print("responselist ${response.body}");
 
       if (response.statusCode == 200) {
@@ -91,7 +113,7 @@ class Auth {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       int? userid = preferences.getInt("id");
       final response = await http
-          .get(Uri.parse(Constants.todaysAppointmentUrl + userid.toString()!));
+          .get(Uri.parse(Constants.todaysAppointmentUrl + userid.toString()));
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -123,7 +145,7 @@ class Auth {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       int? userid = preferences.getInt("id");
       final response = await http
-          .get(Uri.parse(Constants.pendingAppointmentUrl + userid.toString()!));
+          .get(Uri.parse(Constants.pendingAppointmentUrl + userid.toString()));
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -154,8 +176,8 @@ class Auth {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       int? userid = preferences.getInt("id");
-      final response = await http.get(
-          Uri.parse(Constants.scheduleAppointmentUrl + userid.toString()!));
+      final response = await http
+          .get(Uri.parse(Constants.scheduleAppointmentUrl + userid.toString()));
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -270,7 +292,7 @@ class Auth {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     int? userid = preferences.getInt("id");
     try {
-      String url = Constants.completedAppointments + userid.toString()!;
+      String url = Constants.completedAppointments + userid.toString();
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
