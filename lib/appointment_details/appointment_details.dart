@@ -10,6 +10,7 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insurance/appointment_details/test.dart';
 import 'package:insurance/appointment_screen/appointment_screen.dart';
+import 'package:insurance/appointment_screen/model/test_remark.dart';
 import 'package:insurance/camera_screen/camera_screen.dart';
 import 'package:insurance/utils/constants.dart';
 import 'package:location/location.dart' as loc;
@@ -39,6 +40,7 @@ class AppointmentDetails extends StatefulWidget {
 }
 
 class _AppointmentDetailsState extends State<AppointmentDetails> {
+  List<String> _remarks = []; // List to store remarks from API
   Object? index;
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
@@ -69,14 +71,42 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   List<File> _images = []; // List to store selected images
   bool _imageLoading = false; // Loading state
 
-  List<String> _remarks = [
-    "Patient not available",
-    "Technical issue",
-    "Incomplete documents",
-    "Other"
-  ];
+  // final List<String> _remarks = [
+  //   "Patient not available",
+  //   "Technical issue",
+  //   "Incomplete documents",
+  //   "Other"
+  // ];
+
+  // List<String> _remarks = [
+  //   "Patient not available",
+  //   "Technical issue",
+  //   "Incomplete documents",
+  //   "Other"
+  // ];
 
   String? _selectedRemark;
+
+  Future<void> fetchRemarks() async {
+    final url = Uri.parse(Constants.testRemarks); // Replace with actual API URL
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _remarks = data.map((json) => json['remark'].toString()).toList();
+          // if (_remarks.isNotEmpty) {
+          //   _selectedRemark = _remarks.first; // Set default selection
+          // }
+        });
+      } else {
+        print("Failed to load remarks: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching remarks: $error");
+    }
+  }
 
   // Get address from latitude/longitude
   Future<String> _getAddressFromPosition(Position position) async {
@@ -99,165 +129,166 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
   // Capture, annotate, and save to gallery
 // Capture, annotate, and save to gallery
+// commented by me from here to
+  // Future<void> _captureAndSave() async {
+  //   try {
+  //     // Ensure the camera is initialized
+  //     await _initializeControllerFuture;
 
-  Future<void> _captureAndSave() async {
-    try {
-      // Ensure the camera is initialized
-      await _initializeControllerFuture;
+  //     // Take the picture
+  //     final xFile = await _controller.takePicture();
 
-      // Take the picture
-      final xFile = await _controller.takePicture();
+  //     // Load the captured image into memory
+  //     final byteData = await File(xFile.path).readAsBytes();
+  //     final imageBytes = Uint8List.fromList(byteData);
 
-      // Load the captured image into memory
-      final byteData = await File(xFile.path).readAsBytes();
-      final imageBytes = Uint8List.fromList(byteData);
+  //     // Get the current location
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
 
-      // Get the current location
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+  //     // Convert coordinates to an address
+  //     final address = await _getAddressFromPosition(position);
 
-      // Convert coordinates to an address
-      final address = await _getAddressFromPosition(position);
+  //     // Fetch a static map image with a marker
+  //     final mapUrl =
+  //         "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=300x150&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
+  //     final mapResponse = await http.get(Uri.parse(mapUrl));
+  //     if (mapResponse.statusCode != 200) {
+  //       debugPrint("Failed to load map image.");
+  //       return;
+  //     }
+  //     final mapBytes = mapResponse.bodyBytes;
 
-      // Fetch a static map image with a marker
-      final mapUrl =
-          "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=300x150&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
-      final mapResponse = await http.get(Uri.parse(mapUrl));
-      if (mapResponse.statusCode != 200) {
-        debugPrint("Failed to load map image.");
-        return;
-      }
-      final mapBytes = mapResponse.bodyBytes;
+  //     // Decode both images (photo and map)
+  //     img.Image? capturedImage = img.decodeImage(imageBytes);
+  //     img.Image? mapImage = img.decodeImage(mapBytes);
 
-      // Decode both images (photo and map)
-      img.Image? capturedImage = img.decodeImage(imageBytes);
-      img.Image? mapImage = img.decodeImage(mapBytes);
+  //     if (capturedImage == null || mapImage == null) {
+  //       debugPrint("Unable to decode images.");
+  //       return;
+  //     }
 
-      if (capturedImage == null || mapImage == null) {
-        debugPrint("Unable to decode images.");
-        return;
-      }
+  //     // Resize the map image to make it smaller
+  //     final resizedMap = img.copyResize(mapImage, width: 400, height: 200);
 
-      // Resize the map image to make it smaller
-      final resizedMap = img.copyResize(mapImage, width: 400, height: 200);
+  //     // Prepare text for geotag info
+  //     final now = DateTime.now();
+  //     final dateTimeStr =
+  //         "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
+  //     final geotagText = "Address:\n$address\n\n"
+  //         "Coordinates:\n${position.latitude}, ${position.longitude}\n\n"
+  //         "Date & Time:\n$dateTimeStr";
 
-      // Prepare text for geotag info
-      final now = DateTime.now();
-      final dateTimeStr =
-          "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-      final geotagText = "Address:\n$address\n\n"
-          "Coordinates:\n${position.latitude}, ${position.longitude}\n\n"
-          "Date & Time:\n$dateTimeStr";
+  //     // Determine text box dimensions
+  //     final textBoxWidth = 400;
+  //     final textBoxHeight = 120;
 
-      // Determine text box dimensions
-      final textBoxWidth = 400;
-      final textBoxHeight = 120;
+  //     // Create a new canvas to hold the original photo and additional info
+  //     final extendedImage = img.copyResize(
+  //       capturedImage,
+  //       height: capturedImage.height + resizedMap.height + textBoxHeight,
+  //     );
 
-      // Create a new canvas to hold the original photo and additional info
-      final extendedImage = img.copyResize(
-        capturedImage,
-        height: capturedImage.height + resizedMap.height + textBoxHeight,
-      );
+  //     // Add the map image at the bottom left
+  //     img.copyInto(extendedImage, resizedMap,
+  //         dstX: 0, dstY: capturedImage.height + 10);
 
-      // Add the map image at the bottom left
-      img.copyInto(extendedImage, resizedMap,
-          dstX: 0, dstY: capturedImage.height + 10);
+  //     // Add geotag text next to the map
+  //     img.fillRect(
+  //       extendedImage,
+  //       220, // x-coordinate for text box background
+  //       capturedImage.height + 10, // y-coordinate for text box
+  //       220 + textBoxWidth,
+  //       capturedImage.height + 10 + textBoxHeight,
+  //       img.getColor(0, 0, 0, 150), // Semi-transparent black background
+  //     );
+  //     img.drawString(
+  //       extendedImage,
+  //       img.arial_14,
+  //       230, // x-coordinate for text
+  //       capturedImage.height + 20, // y-coordinate for text
+  //       geotagText,
+  //       color: img.getColor(255, 255, 255), // White text
+  //     );
 
-      // Add geotag text next to the map
-      img.fillRect(
-        extendedImage,
-        220, // x-coordinate for text box background
-        capturedImage.height + 10, // y-coordinate for text box
-        220 + textBoxWidth,
-        capturedImage.height + 10 + textBoxHeight,
-        img.getColor(0, 0, 0, 150), // Semi-transparent black background
-      );
-      img.drawString(
-        extendedImage,
-        img.arial_14,
-        230, // x-coordinate for text
-        capturedImage.height + 20, // y-coordinate for text
-        geotagText,
-        color: img.getColor(255, 255, 255), // White text
-      );
+  //     // Encode the final image
+  //     final finalBytes = Uint8List.fromList(img.encodeJpg(extendedImage));
 
-      // Encode the final image
-      final finalBytes = Uint8List.fromList(img.encodeJpg(extendedImage));
+  //     // Save the final annotated image to the gallery
+  //     final result = await ImageGallerySaverPlus.saveImage(
+  //       finalBytes,
+  //       name: "GeotaggedPhoto_${DateTime.now().millisecondsSinceEpoch}",
+  //       quality: 100,
+  //     );
 
-      // Save the final annotated image to the gallery
-      final result = await ImageGallerySaverPlus.saveImage(
-        finalBytes,
-        name: "GeotaggedPhoto_${DateTime.now().millisecondsSinceEpoch}",
-        quality: 100,
-      );
+  //     debugPrint("Save result: $result");
 
-      debugPrint("Save result: $result");
+  //     if (!mounted) return;
 
-      if (!mounted) return;
+  //     // Show a confirmation dialog
+  //     showDialog(
+  //       context: context,
+  //       builder: (_) => AlertDialog(
+  //         title: const Text("Photo Saved"),
+  //         content: Text(
+  //           "Photo saved with geotag info and map.\n\n"
+  //           "Coordinates: (${position.latitude}, ${position.longitude})\n"
+  //           "Address: $address\n"
+  //           "Saved At: $dateTimeStr",
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(context).pop(),
+  //             child: const Text("OK"),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     debugPrint("Error capturing and saving photo: $e");
+  //   }
+  // }
 
-      // Show a confirmation dialog
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Photo Saved"),
-          content: Text(
-            "Photo saved with geotag info and map.\n\n"
-            "Coordinates: (${position.latitude}, ${position.longitude})\n"
-            "Address: $address\n"
-            "Saved At: $dateTimeStr",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("OK"),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      debugPrint("Error capturing and saving photo: $e");
-    }
-  }
+  // Future<void> _sendImageWithGeotag(
+  //     File image, double latitude, double longitude, String description) async {
+  //   try {
+  //     final uri = Uri.parse(
+  //         "http://3.109.174.127:3005/addappointmentapp"); // Replace with your API endpoint
+  //     final request = http.MultipartRequest('POST', uri);
 
-  Future<void> _sendImageWithGeotag(
-      File image, double latitude, double longitude, String description) async {
-    try {
-      final uri = Uri.parse(
-          "http://3.109.174.127:3005/addappointmentapp"); // Replace with your API endpoint
-      final request = http.MultipartRequest('POST', uri);
+  //     // Add image file to the request
+  //     request.files.add(await http.MultipartFile.fromPath(
+  //       'image',
+  //       image.path,
+  //     ));
 
-      // Add image file to the request
-      request.files.add(await http.MultipartFile.fromPath(
-        'image',
-        image.path,
-      ));
+  //     request.fields['description'] = description.toString();
+  //     // Add geotag to the request
+  //     request.fields['latitude'] = latitude.toString();
+  //     request.fields['longitude'] = longitude.toString();
 
-      request.fields['description'] = description.toString();
-      // Add geotag to the request
-      request.fields['latitude'] = latitude.toString();
-      request.fields['longitude'] = longitude.toString();
+  //     // Send the request
+  //     final response = await request.send();
+  //     if (response.statusCode == 200) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text("Image uploaded successfully!")),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             content: Text(
+  //                 "Failed to upload image. Status: ${response.statusCode}")),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Error uploading image: $e")),
+  //     );
+  //   }
+  // }
 
-      // Send the request
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Image uploaded successfully!")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  "Failed to upload image. Status: ${response.statusCode}")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error uploading image: $e")),
-      );
-    }
-  }
-
+// here on 20/02/2025
   Future<void> _sendData() async {
     if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -410,110 +441,110 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     }
   }
 
-  Future<void> _pickImagec() async {
-    try {
-      final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.camera);
-      setState(() {
-        _imageloading = true;
-      });
+//   Future<void> _pickImagec() async {
+//     try {
+//       final pickedFile =
+//           await ImagePicker().pickImage(source: ImageSource.camera);
+//       setState(() {
+//         _imageloading = true;
+//       });
 
-      if (pickedFile != null) {
-        File imageFile = File(pickedFile.path);
-        final imageBytes = await imageFile.readAsBytes();
+//       if (pickedFile != null) {
+//         File imageFile = File(pickedFile.path);
+//         final imageBytes = await imageFile.readAsBytes();
 
-        // Decode the captured image
-        img.Image capturedImage = img.decodeImage(imageBytes)!;
+//         // Decode the captured image
+//         img.Image capturedImage = img.decodeImage(imageBytes)!;
 
-        // Get current location (latitude and longitude)
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
+//         // Get current location (latitude and longitude)
+//         Position position = await Geolocator.getCurrentPosition(
+//             desiredAccuracy: LocationAccuracy.high);
 
-        // Get address from latitude and longitude
-        List<Placemark> placemarks = await GeocodingPlatform.instance!
-            .placemarkFromCoordinates(position.latitude, position.longitude);
-        Placemark place = placemarks.first;
+//         // Get address from latitude and longitude
+//         List<Placemark> placemarks = await GeocodingPlatform.instance!
+//             .placemarkFromCoordinates(position.latitude, position.longitude);
+//         Placemark place = placemarks.first;
 
-        final geotagText =
-            "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
+//         final geotagText =
+//             "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
 
-        // Calculate the dimensions for the map and text area
-        final mapWidth = capturedImage.width ~/ 2; // Half of the image width
-        final mapHeight = (mapWidth * 150) / 300; // Aspect ratio 300x150
-        final textBoxWidth =
-            capturedImage.width ~/ 2; // Other half for the text
-        final textBoxHeight = mapHeight.toInt(); // Match map height
+//         // Calculate the dimensions for the map and text area
+//         final mapWidth = capturedImage.width ~/ 2; // Half of the image width
+//         final mapHeight = (mapWidth * 150) / 300; // Aspect ratio 300x150
+//         final textBoxWidth =
+//             capturedImage.width ~/ 2; // Other half for the text
+//         final textBoxHeight = mapHeight.toInt(); // Match map height
 
-        // Construct the Google Maps static URL for the map image
-        final mapUrl =
-            "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
+//         // Construct the Google Maps static URL for the map image
+//         final mapUrl =
+//             "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
 
-        // Fetch the map image
-        final response = await http.get(Uri.parse(mapUrl));
-        if (response.statusCode == 200) {
-          img.Image mapImage =
-              img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
+//         // Fetch the map image
+//         final response = await http.get(Uri.parse(mapUrl));
+//         if (response.statusCode == 200) {
+//           img.Image mapImage =
+//               img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
 
-          // Prepare text for geotag info
-          final now = DateTime.now();
-          final dateTimeStr =
-              "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-          final geotagTextWithDate =
-              "$geotagText\n\nDate & Time:\n$dateTimeStr";
+//           // Prepare text for geotag info
+//           final now = DateTime.now();
+//           final dateTimeStr =
+//               "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
+//           final geotagTextWithDate =
+//               "$geotagText\n\nDate & Time:\n$dateTimeStr";
 
-          // Create a new canvas to hold the original photo, map, and text
-          final extendedImage = img.Image(
-            capturedImage.width,
-            capturedImage.height + mapHeight.toInt(),
-          );
+//           // Create a new canvas to hold the original photo, map, and text
+//           final extendedImage = img.Image(
+//             capturedImage.width,
+//             capturedImage.height + mapHeight.toInt(),
+//           );
 
-// Place the original image
-          img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
+// // Place the original image
+//           img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
 
-// Place the map in the bottom left
-          img.copyInto(extendedImage, mapImage,
-              dstX: 0, dstY: capturedImage.height);
+// // Place the map in the bottom left
+//           img.copyInto(extendedImage, mapImage,
+//               dstX: 0, dstY: capturedImage.height);
 
-// Draw the black background for the text box
-          img.fillRect(
-            extendedImage,
-            mapWidth, // Start at the right of the map
-            capturedImage.height, // Align with the map's top edge
-            capturedImage.width, // End at the canvas width
-            capturedImage.height + mapHeight.toInt(), // Match map height
-            img.getColor(0, 0, 0, 255), // Opaque black
-          );
+// // Draw the black background for the text box
+//           img.fillRect(
+//             extendedImage,
+//             mapWidth, // Start at the right of the map
+//             capturedImage.height, // Align with the map's top edge
+//             capturedImage.width, // End at the canvas width
+//             capturedImage.height + mapHeight.toInt(), // Match map height
+//             img.getColor(0, 0, 0, 255), // Opaque black
+//           );
 
-// Add the geotag text in the black box
-          img.drawString(
-            extendedImage,
-            img.arial_48, // Larger font size
-            mapWidth + 10, // Padding inside the black box
-            capturedImage.height + 10, // Padding from the top edge
-            geotagTextWithDate,
-            color: img.getColor(255, 255, 255), // White text
-          );
-          // Save the updated image
-          final updatedImageBytes = img.encodeJpg(extendedImage);
-          final updatedImageFile = File(pickedFile.path)
-            ..writeAsBytesSync(updatedImageBytes);
+// // Add the geotag text in the black box
+//           img.drawString(
+//             extendedImage,
+//             img.arial_48, // Larger font size
+//             mapWidth + 10, // Padding inside the black box
+//             capturedImage.height + 10, // Padding from the top edge
+//             geotagTextWithDate,
+//             color: img.getColor(255, 255, 255), // White text
+//           );
+//           // Save the updated image
+//           final updatedImageBytes = img.encodeJpg(extendedImage);
+//           final updatedImageFile = File(pickedFile.path)
+//             ..writeAsBytesSync(updatedImageBytes);
 
-          setState(() {
-            _image = updatedImageFile; // Save the updated image
-            _imageloading = false;
-          });
-        } else {
-          debugPrint("Failed to load map image: ${response.statusCode}");
-        }
-      } else {
-        setState(() {
-          _imageloading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error capturing and saving photo: $e");
-    }
-  }
+//           setState(() {
+//             _image = updatedImageFile; // Save the updated image
+//             _imageloading = false;
+//           });
+//         } else {
+//           debugPrint("Failed to load map image: ${response.statusCode}");
+//         }
+//       } else {
+//         setState(() {
+//           _imageloading = false;
+//         });
+//       }
+//     } catch (e) {
+//       debugPrint("Error capturing and saving photo: $e");
+//     }
+//   }
 
   Future<void> _pickImage() async {
     try {
@@ -631,167 +662,167 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 // List<File> _images = []; // List to store multiple images
 // bool _imageLoading = false; // Loading state
 
-  Future<void> _pickMultipleImagess() async {
-    try {
-      List<File> tempImages = [];
-      bool capturing = true; // Control variable for loop
+  // Future<void> _pickMultipleImagess() async {
+  //   try {
+  //     List<File> tempImages = [];
+  //     bool capturing = true; // Control variable for loop
 
-      while (capturing) {
-        final pickedFile =
-            await ImagePicker().pickImage(source: ImageSource.camera);
+  //     while (capturing) {
+  //       final pickedFile =
+  //           await ImagePicker().pickImage(source: ImageSource.camera);
 
-        if (pickedFile == null) {
-          capturing = false; // Exit loop if user cancels
-          break;
-        }
+  //       if (pickedFile == null) {
+  //         capturing = false; // Exit loop if user cancels
+  //         break;
+  //       }
 
-        setState(() {
-          _imageLoading = true;
-        });
+  //       setState(() {
+  //         _imageLoading = true;
+  //       });
 
-        File imageFile = File(pickedFile.path);
-        final imageBytes = await imageFile.readAsBytes();
+  //       File imageFile = File(pickedFile.path);
+  //       final imageBytes = await imageFile.readAsBytes();
 
-        // Decode the captured image
-        img.Image capturedImage = img.decodeImage(imageBytes)!;
+  //       // Decode the captured image
+  //       img.Image capturedImage = img.decodeImage(imageBytes)!;
 
-        // Get current location
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
+  //       // Get current location
+  //       Position position = await Geolocator.getCurrentPosition(
+  //           desiredAccuracy: LocationAccuracy.high);
 
-        // Get address from latitude and longitude
-        List<Placemark> placemarks = await GeocodingPlatform.instance!
-            .placemarkFromCoordinates(position.latitude, position.longitude);
-        Placemark place = placemarks.first;
+  //       // Get address from latitude and longitude
+  //       List<Placemark> placemarks = await GeocodingPlatform.instance!
+  //           .placemarkFromCoordinates(position.latitude, position.longitude);
+  //       Placemark place = placemarks.first;
 
-        final geotagText =
-            "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
+  //       final geotagText =
+  //           "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
 
-        // Calculate dimensions for the map and text area
-        final mapWidth = capturedImage.width ~/ 2;
-        final mapHeight = (mapWidth * 150) / 300;
+  //       // Calculate dimensions for the map and text area
+  //       final mapWidth = capturedImage.width ~/ 2;
+  //       final mapHeight = (mapWidth * 150) / 300;
 
-        // Construct Google Maps static URL
-        final mapUrl =
-            "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=YOUR_GOOGLE_MAPS_API_KEY";
+  //       // Construct Google Maps static URL
+  //       final mapUrl =
+  //           "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=YOUR_GOOGLE_MAPS_API_KEY";
 
-        // Fetch map image
-        final response = await http.get(Uri.parse(mapUrl));
-        if (response.statusCode == 200) {
-          img.Image mapImage =
-              img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
+  //       // Fetch map image
+  //       final response = await http.get(Uri.parse(mapUrl));
+  //       if (response.statusCode == 200) {
+  //         img.Image mapImage =
+  //             img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
 
-          // Prepare text for geotag info
-          final now = DateTime.now();
-          final dateTimeStr =
-              "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-          final geotagTextWithDate =
-              "$geotagText\n\nDate & Time:\n$dateTimeStr";
+  //         // Prepare text for geotag info
+  //         final now = DateTime.now();
+  //         final dateTimeStr =
+  //             "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
+  //         final geotagTextWithDate =
+  //             "$geotagText\n\nDate & Time:\n$dateTimeStr";
 
-          // Create a new canvas to hold the original photo, map, and text
-          final extendedImage = img.Image(
-            capturedImage.width,
-            capturedImage.height + mapHeight.toInt(),
-          );
+  //         // Create a new canvas to hold the original photo, map, and text
+  //         final extendedImage = img.Image(
+  //           capturedImage.width,
+  //           capturedImage.height + mapHeight.toInt(),
+  //         );
 
-          // Place the original image
-          img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
+  //         // Place the original image
+  //         img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
 
-          // Place the map in the bottom left
-          img.copyInto(extendedImage, mapImage,
-              dstX: 0, dstY: capturedImage.height);
+  //         // Place the map in the bottom left
+  //         img.copyInto(extendedImage, mapImage,
+  //             dstX: 0, dstY: capturedImage.height);
 
-          // Draw the black background for the text box
-          img.fillRect(
-            extendedImage,
-            mapWidth,
-            capturedImage.height,
-            capturedImage.width,
-            capturedImage.height + mapHeight.toInt(),
-            img.getColor(0, 0, 0, 255),
-          );
+  //         // Draw the black background for the text box
+  //         img.fillRect(
+  //           extendedImage,
+  //           mapWidth,
+  //           capturedImage.height,
+  //           capturedImage.width,
+  //           capturedImage.height + mapHeight.toInt(),
+  //           img.getColor(0, 0, 0, 255),
+  //         );
 
-          // Add the geotag text in the black box
-          img.drawString(
-            extendedImage,
-            img.arial_48,
-            mapWidth + 10,
-            capturedImage.height + 10,
-            geotagTextWithDate,
-            color: img.getColor(255, 255, 255),
-          );
+  //         // Add the geotag text in the black box
+  //         img.drawString(
+  //           extendedImage,
+  //           img.arial_48,
+  //           mapWidth + 10,
+  //           capturedImage.height + 10,
+  //           geotagTextWithDate,
+  //           color: img.getColor(255, 255, 255),
+  //         );
 
-          // Save the updated image
-          final updatedImageBytes = img.encodeJpg(extendedImage);
-          final updatedImageFile = File(pickedFile.path)
-            ..writeAsBytesSync(updatedImageBytes);
+  //         // Save the updated image
+  //         final updatedImageBytes = img.encodeJpg(extendedImage);
+  //         final updatedImageFile = File(pickedFile.path)
+  //           ..writeAsBytesSync(updatedImageBytes);
 
-          tempImages.add(updatedImageFile);
-        } else {
-          debugPrint("Failed to load map image: ${response.statusCode}");
-        }
+  //         tempImages.add(updatedImageFile);
+  //       } else {
+  //         debugPrint("Failed to load map image: ${response.statusCode}");
+  //       }
 
-        setState(() {
-          _imageLoading = false;
-        });
+  //       setState(() {
+  //         _imageLoading = false;
+  //       });
 
-        // Ask the user if they want to take another picture
-        capturing = await _askUserToContinue();
-      }
+  //       // Ask the user if they want to take another picture
+  //       capturing = await _askUserToContinue();
+  //     }
 
-      if (tempImages.isNotEmpty) {
-        setState(() {
-          _images.addAll(tempImages);
-        });
-      }
-    } catch (e) {
-      debugPrint("Error capturing and saving multiple photos: $e");
-    }
-  }
+  //     if (tempImages.isNotEmpty) {
+  //       setState(() {
+  //         _images.addAll(tempImages);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Error capturing and saving multiple photos: $e");
+  //   }
+  // }
 
-  Future<bool> _askUserToContinue() async {
-    return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("Capture More?"),
-            content: Text("Do you want to take another picture?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("No"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text("Yes"),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
+  // Future<bool> _askUserToContinue() async {
+  //   return await showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: Text("Capture More?"),
+  //           content: Text("Do you want to take another picture?"),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(false),
+  //               child: Text("No"),
+  //             ),
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(true),
+  //               child: Text("Yes"),
+  //             ),
+  //           ],
+  //         ),
+  //       ) ??
+  //       false;
+  // }
 
-  Future<void> _pickMultipleImages() async {
-    try {
-      final pickedFiles = await ImagePicker().pickMultiImage();
-      if (pickedFiles != null && pickedFiles.isNotEmpty) {
-        setState(() {
-          _imageLoading = true;
-        });
+  // Future<void> _pickMultipleImages() async {
+  //   try {
+  //     final pickedFiles = await ImagePicker().pickMultiImage();
+  //     if (pickedFiles != null && pickedFiles.isNotEmpty) {
+  //       setState(() {
+  //         _imageLoading = true;
+  //       });
 
-        List<File> tempImages = [];
-        for (var pickedFile in pickedFiles) {
-          tempImages.add(File(pickedFile.path));
-        }
+  //       List<File> tempImages = [];
+  //       for (var pickedFile in pickedFiles) {
+  //         tempImages.add(File(pickedFile.path));
+  //       }
 
-        setState(() {
-          _images = tempImages;
-          _imageLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error selecting images: $e");
-    }
-  }
+  //       setState(() {
+  //         _images = tempImages;
+  //         _imageLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Error selecting images: $e");
+  //   }
+  // }
 
   /// Function to remove an image from the list
   void _removeImage(int index) {
@@ -804,6 +835,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   void initState() {
     super.initState();
     // Initialize the TextEditingController with the clientName from the widget
+    fetchRemarks(); // Fetch remarks when the widget initializes
     _nameController = TextEditingController(text: "Name: ${widget.clientName}");
     _medicalreportsController =
         TextEditingController(text: "Lab Reports: ${widget.medicalreports}");
@@ -835,6 +867,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     _dateController.dispose();
     _timeController.dispose();
     _videoController?.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 
@@ -932,7 +965,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                   hintText: "Enter Description",
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 16),
 

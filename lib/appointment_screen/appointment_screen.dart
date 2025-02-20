@@ -21,6 +21,7 @@ class AppointmentScreen extends StatefulWidget {
 class _AppointmentScreenState extends State<AppointmentScreen> {
   List<Appointment> appointments = [];
   Object? index;
+  final TextEditingController _remarkController = TextEditingController();
 
   final TextStyle _biggerFont = const TextStyle(fontSize: 18.0);
   List<Appointment> filteredAppointments = [];
@@ -32,6 +33,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     // Call the asynchronous method here
     _initializeApp();
     setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _remarkController.dispose();
+    super.dispose();
   }
 
   Future<void> _launchDialer(String number) async {
@@ -65,7 +72,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       //     : await Auth().getTotalAppointments();
       List<Appointment> fetchedAppointments = [];
       if (widget.i == 0) {
-        fetchedAppointments = await Auth().getTotalAppointments();
+        fetchedAppointments = await Auth().getScheduleAppointments();
       } else if (widget.i != 0) {
         if (index == 0) {
           fetchedAppointments = await Auth().getTotalAppointments();
@@ -108,7 +115,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     .contains(query.toLowerCase()) ||
                 appointment.medicalTests
                     .toLowerCase()
-                    .contains(query.toLowerCase()))
+                    .contains(query.toLowerCase()) ||
+                appointment.status!.toLowerCase().contains(query.toLowerCase()))
             .toList();
       }
     });
@@ -158,45 +166,187 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   ),
                   const SizedBox(height: 10),
                   Expanded(
-                    child: filteredAppointments.isEmpty
-                        ? const Text(
-                            "No Appointments available",
-                            style: TextStyle(color: Colors.pink),
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: filteredAppointments.length,
-                            itemBuilder: (context, index) {
-                              final appointment = filteredAppointments[index];
-                              return Slidable(
-                                endActionPane: ActionPane(
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      onPressed: (context) {
-                                        // Add your action for delete
-                                        print(
-                                            "Delete ${appointment.appointment_id}");
-                                      },
-                                      backgroundColor: Colors.red,
-                                      foregroundColor: Colors.white,
-                                      icon: Icons.delete,
-                                      label: 'Delete',
-                                    ),
-                                  ],
-                                ),
-                                child: _buildRow(
-                                  appointment.appointment_id,
-                                  appointment.clientName,
-                                  appointment.medicalTests,
-                                  appointment.time,
-                                  appointment.date,
-                                  appointment.appointment_no,
-                                  appointment.mobileno,
-                                ),
-                              );
-                            }),
-                  ),
+                      child: filteredAppointments.isEmpty
+                          ? const Text(
+                              "No Appointments available",
+                              style: TextStyle(color: Colors.pink),
+                            )
+                          : (widget.i == 0 || index == 0)
+                              ? ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: filteredAppointments.length,
+                                  itemBuilder: (context, index) {
+                                    final appointment =
+                                        filteredAppointments[index];
+                                    return _buildRowForTotalAppointmentStatus(
+                                        appointment.appointment_id,
+                                        appointment.clientName,
+                                        appointment.medicalTests,
+                                        appointment.time,
+                                        appointment.date,
+                                        appointment.appointment_no,
+                                        appointment.mobileno,
+                                        appointment.status ?? "not defined",
+                                        appointment.rejected_status ?? "nott");
+                                  })
+                              : (index != 3)
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: filteredAppointments.length,
+                                      itemBuilder: (context, index) {
+                                        final appointment =
+                                            filteredAppointments[index];
+                                        return Slidable(
+                                          endActionPane: ActionPane(
+                                            motion: const BehindMotion(),
+                                            children: [
+                                              SlidableAction(
+                                                onPressed: (context) {
+                                                  // Add your action for delete
+
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      bool validate =
+                                                          false; // Local state inside the dialog
+
+                                                      return StatefulBuilder(
+                                                        builder: (context,
+                                                            setState) {
+                                                          return AlertDialog(
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            title: const Text(
+                                                                'Do you want to reject this appointment?'),
+                                                            content: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                TextFormField(
+                                                                  controller:
+                                                                      _remarkController,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    labelText:
+                                                                        "Remark",
+                                                                    hintText:
+                                                                        "Enter Remark",
+                                                                    border:
+                                                                        const OutlineInputBorder(),
+                                                                    errorText: validate
+                                                                        ? "Value Can't Be Empty"
+                                                                        : null,
+                                                                  ),
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .text,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  _remarkController
+                                                                      .clear();
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                child: const Text(
+                                                                    'CANCEL'),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  if (_remarkController
+                                                                      .text
+                                                                      .isNotEmpty) {
+                                                                    final result = await Auth().rejectAppointment(
+                                                                        appointment
+                                                                            .appointment_id,
+                                                                        _remarkController
+                                                                            .text
+                                                                            .trim());
+                                                                    setState(
+                                                                        () {
+                                                                      if (result) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text("Appointment rejected successfully")));
+                                                                        print(
+                                                                            "Delete ${appointment.appointment_id}");
+                                                                        Navigator.of(context)
+                                                                            .pop(); // Close dialog on success
+                                                                        _remarkController
+                                                                            .clear();
+                                                                      } else {
+                                                                        print(
+                                                                            "${appointment.appointment_id} not rejected");
+                                                                        Navigator.of(context)
+                                                                            .pop(); // Close dialog on success
+                                                                        _remarkController
+                                                                            .clear();
+                                                                      }
+                                                                    });
+                                                                  } else {
+                                                                    setState(
+                                                                        () {
+                                                                      validate =
+                                                                          true; // Update UI dynamically
+                                                                    });
+                                                                  }
+                                                                },
+                                                                child: const Text(
+                                                                    'REJECT'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                backgroundColor: Colors.red,
+                                                foregroundColor: Colors.white,
+                                                icon: Icons.close,
+                                                label: 'Reject',
+                                              ),
+                                            ],
+                                          ),
+                                          child: _buildRow(
+                                              appointment.appointment_id,
+                                              appointment.clientName,
+                                              appointment.medicalTests,
+                                              appointment.time,
+                                              appointment.date,
+                                              appointment.appointment_no,
+                                              appointment.mobileno,
+                                              appointment.rejected_status ??
+                                                  "not defined"),
+                                        );
+                                      })
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: filteredAppointments.length,
+                                      itemBuilder: (context, index) {
+                                        final appointment =
+                                            filteredAppointments[index];
+                                        return _buildRowForRejectedAppointmentStatus(
+                                            appointment.appointment_id,
+                                            appointment.clientName,
+                                            appointment.medicalTests,
+                                            appointment.time,
+                                            appointment.date,
+                                            appointment.appointment_no,
+                                            appointment.mobileno,
+                                            appointment.status ?? "not defined",
+                                            appointment.rejected_status ?? "b");
+                                      })),
                 ],
               ),
             ),
@@ -206,14 +356,21 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     );
   }
 
-  Widget _buildRow(int id, String name, String medicalTests, String time,
-      String date, String appointment_no, String mobileno) {
+  Widget _buildRow(
+      int id,
+      String name,
+      String medicalTests,
+      String time,
+      String date,
+      String appointment_no,
+      String mobileno,
+      String rejectedStatus) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           border: Border(
               bottom: BorderSide(
                   width: 1,
-                  color: const Color.fromARGB(255, 215, 213, 213),
+                  color: Color.fromARGB(255, 215, 213, 213),
                   style: BorderStyle.solid))),
       child: ListTile(
         // trailing: Row(
@@ -256,6 +413,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               date.trim(),
               maxLines: 1,
             ),
+            rejectedStatus == "1"
+                ? Text(
+                    "High Priority",
+                    style: TextStyle(color: Colors.pink),
+                  )
+                : SizedBox()
           ],
         ),
         title: Text(
@@ -284,6 +447,187 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             }); // Reload data when returning
             print("result:of backpress2$result");
           }
+        },
+      ),
+    );
+  }
+
+  Widget _buildRowForTotalAppointmentStatus(
+      int id,
+      String name,
+      String medicalTests,
+      String time,
+      String date,
+      String appointment_no,
+      String mobileno,
+      String status,
+      String rejected_status) {
+    return Container(
+      decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  width: 1,
+                  color: Color.fromARGB(255, 215, 213, 213),
+                  style: BorderStyle.solid))),
+      child: ListTile(
+        // trailing: IconButton(
+        //   onPressed: () {
+        //     // here according to status there is no need to show call icon
+
+        //     // _launchDialer(mobileno.toString().trim());
+        //   },
+        //   icon: const Icon(Icons.call),
+        //   color: Colors.green,
+        // ),
+        leading: const CircleAvatar(
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              medicalTests.trim(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              date.trim(),
+              maxLines: 1,
+            ),
+            // below this text i think i should add status of that appointment.
+            Text(
+              "Status: ${status.trim()}",
+              maxLines: 1,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+
+            rejected_status == "1"
+                ? Text(
+                    "Rejected",
+                    style: TextStyle(color: Colors.pink),
+                  )
+                : SizedBox()
+          ],
+        ),
+        title: Text(
+          name.trim(),
+          style: _biggerFont,
+        ),
+        onTap: () async {
+// according to me i think , on tap will not be in use for this module.
+
+          // final result = await Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => AppointmentDetails(
+          //         clientName: name,
+          //         medicalreports: medicalTests,
+          //         date: date,
+          //         time: time,
+          //         appointment_id: id,
+          //         appointment_no: appointment_no,
+          //       ),
+          //     ));
+
+          // print("result:of backpress1$result");
+
+          // if (result == "refresh") {
+          //   setState(() {
+          //     _fetchAppointments();
+          //   }); // Reload data when returning
+          //   print("result:of backpress2$result");
+          // }
+        },
+      ),
+    );
+  }
+
+  Widget _buildRowForRejectedAppointmentStatus(
+      int id,
+      String name,
+      String medicalTests,
+      String time,
+      String date,
+      String appointment_no,
+      String mobileno,
+      String status,
+      String rejected_status) {
+    return Container(
+      decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  width: 1,
+                  color: Color.fromARGB(255, 215, 213, 213),
+                  style: BorderStyle.solid))),
+      child: ListTile(
+        // trailing: IconButton(
+        //   onPressed: () {
+        //     // here according to status there is no need to show call icon
+
+        //     // _launchDialer(mobileno.toString().trim());
+        //   },
+        //   icon: const Icon(Icons.call),
+        //   color: Colors.green,
+        // ),
+        leading: const CircleAvatar(
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              medicalTests.trim(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              date.trim(),
+              maxLines: 1,
+            ),
+            // below this text i think i should add status of that appointment.
+
+            rejected_status == "1"
+                ? Text(
+                    "Rejected",
+                    style: TextStyle(color: Colors.pink),
+                  )
+                : SizedBox()
+          ],
+        ),
+        title: Text(
+          name.trim(),
+          style: _biggerFont,
+        ),
+        onTap: () async {
+// according to me i think , on tap will not be in use for this module.
+
+          // final result = await Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => AppointmentDetails(
+          //         clientName: name,
+          //         medicalreports: medicalTests,
+          //         date: date,
+          //         time: time,
+          //         appointment_id: id,
+          //         appointment_no: appointment_no,
+          //       ),
+          //     ));
+
+          // print("result:of backpress1$result");
+
+          // if (result == "refresh") {
+          //   setState(() {
+          //     _fetchAppointments();
+          //   }); // Reload data when returning
+          //   print("result:of backpress2$result");
+          // }
         },
       ),
     );

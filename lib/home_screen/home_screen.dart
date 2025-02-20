@@ -35,11 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
       'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'
     ],
     [
-      'Schedule Appointment',
+      'Assigned Appointment',
       'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-multimeter-car-service-wanicon-flat-wanicon.png'
     ],
     [
-      'Pending Appointment',
+      'Rejected Appointment',
       'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-painter-male-occupation-avatar-itim2101-flat-itim2101.png'
     ],
   ];
@@ -108,11 +108,20 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
         title: const Text("Insurance"),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          tooltip: 'Menu Icon',
-          onPressed: () {},
+        leading: Padding(
+          padding: const EdgeInsets.only(
+              top: 4, bottom: 4, left: 4), // Adjust top and bottom padding
+          child: Container(
+            width: 50,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/logo.png"),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
         ),
+        leadingWidth: 50,
       ),
       body: RefreshIndicator(
         backgroundColor: Colors.white,
@@ -140,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: services.length,
                       itemBuilder: (BuildContext context, int index) {
                         return FadeInUp(
-                          delay: Duration(milliseconds: 500 * index),
+                          delay: Duration(milliseconds: 200 * index),
                           child: GestureDetector(
                             child: serviceContainer(
                               services[index][1],
@@ -188,8 +197,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(
                   height: 10,
                 ),
+                Divider(),
                 FutureBuilder<List<Appointment>>(
-                  future: Auth().getTotalAppointments(),
+                  future: Auth().getScheduleAppointments(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -312,13 +322,13 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               "${medicalTests.trim()}",
-              style: TextStyle(),
+              style: const TextStyle(),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               "${date.trim()}",
-              style: TextStyle(),
+              style: const TextStyle(),
               maxLines: 1,
             ),
           ],

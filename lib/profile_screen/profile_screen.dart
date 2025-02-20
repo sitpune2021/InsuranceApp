@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:insurance/login_screen/login_screen.dart';
+import 'package:insurance/services/auth.dart';
 import 'package:insurance/session/session.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,16 +97,6 @@ class _ProfileCardScreenState extends State<ProfileCardScreen> {
       print("Error uploading image: $e");
     }
   }
-// class ProfileCardScreen extends StatelessWidget {
-//   final String name;
-//   final String mobileno;
-//   final String image;
-
-//   const ProfileCardScreen(
-//       {super.key,
-//       required this.name,
-//       required this.mobileno,
-//       required this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -262,121 +253,121 @@ class _ProfileCardScreenState extends State<ProfileCardScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Profile Information Section
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            "Profile",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 2,
-                        child: ListTile(
-                          leading: const Icon(Icons.info, color: Colors.blue),
-                          title: const Text("Basic Profile Information"),
-                          trailing: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.chevron_right, color: Colors.grey),
-                            ],
-                          ),
-                          // onTap: () {
-                          //   // Handle tap
-                          //   Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => const BasicProfileScreen()),
-                          //   );
-                          // },
-                          onTap: () {
-                            // Future.delayed(const Duration(milliseconds: 200), () {
-                            //   Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => const MyKycScreen()),
-                            //   );
-                            // });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                      // // Profile Information Section
+                      // const Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: Padding(
+                      //     padding: EdgeInsets.symmetric(vertical: 8.0),
+                      //     child: Text(
+                      //       "Profile",
+                      //       style: TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 16,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Card(
+                      //   color: Colors.white,
+                      //   shape: RoundedRectangleBorder(
+                      //     borderRadius: BorderRadius.circular(8),
+                      //   ),
+                      //   elevation: 2,
+                      //   child: ListTile(
+                      //     leading: const Icon(Icons.info, color: Colors.blue),
+                      //     title: const Text("Basic Profile Information"),
+                      //     trailing: const Row(
+                      //       mainAxisSize: MainAxisSize.min,
+                      //       children: [
+                      //         Icon(Icons.chevron_right, color: Colors.grey),
+                      //       ],
+                      //     ),
+                      //     // onTap: () {
+                      //     //   // Handle tap
+                      //     //   Navigator.push(
+                      //     //     context,
+                      //     //     MaterialPageRoute(
+                      //     //         builder: (context) => const BasicProfileScreen()),
+                      //     //   );
+                      //     // },
+                      //     onTap: () {
+                      //       // Future.delayed(const Duration(milliseconds: 200), () {
+                      //       //   Navigator.push(
+                      //       //     context,
+                      //       //     MaterialPageRoute(
+                      //       //         builder: (context) => const MyKycScreen()),
+                      //       //   );
+                      //       // });
+                      //     },
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 8),
 
-                      // KYC Section with Video Icon and Complete KYC Text
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "KYC",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // // KYC Section with Video Icon and Complete KYC Text
+                      // const Align(
+                      //   alignment: Alignment.centerLeft,
+                      //   child: Padding(
+                      //     padding: EdgeInsets.symmetric(vertical: 8.0),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //       children: [
+                      //         Text(
+                      //           "KYC",
+                      //           style: TextStyle(
+                      //             fontWeight: FontWeight.bold,
+                      //             fontSize: 16,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
 
-                      // KYC Card
-                      Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 2,
-                        child: ListTile(
-                          leading:
-                              const Icon(Icons.credit_card, color: Colors.blue),
-                          title: const Text("Identity Details"),
-                          trailing: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.chevron_right, color: Colors.grey),
-                            ],
-                          ),
-                          onTap: () {
-                            // Handle tap
-                          },
-                        ),
-                      ),
-                      Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 2,
-                        child: ListTile(
-                          leading: const Icon(Icons.account_balance,
-                              color: Colors.blue),
-                          title: const Text("Bank Details"),
-                          trailing: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.chevron_right, color: Colors.grey),
-                            ],
-                          ),
-                          onTap: () {
-                            // Handle tap
-                          },
-                        ),
-                      ),
+                      // // KYC Card
+                      // Card(
+                      //   color: Colors.white,
+                      //   shape: RoundedRectangleBorder(
+                      //     borderRadius: BorderRadius.circular(8),
+                      //   ),
+                      //   elevation: 2,
+                      //   child: ListTile(
+                      //     leading:
+                      //         const Icon(Icons.credit_card, color: Colors.blue),
+                      //     title: const Text("Identity Details"),
+                      //     trailing: const Row(
+                      //       mainAxisSize: MainAxisSize.min,
+                      //       children: [
+                      //         Icon(Icons.chevron_right, color: Colors.grey),
+                      //       ],
+                      //     ),
+                      //     onTap: () {
+                      //       // Handle tap
+                      //     },
+                      //   ),
+                      // ),
+                      // Card(
+                      //   color: Colors.white,
+                      //   shape: RoundedRectangleBorder(
+                      //     borderRadius: BorderRadius.circular(8),
+                      //   ),
+                      //   elevation: 2,
+                      //   child: ListTile(
+                      //     leading: const Icon(Icons.account_balance,
+                      //         color: Colors.blue),
+                      //     title: const Text("Bank Details"),
+                      //     trailing: const Row(
+                      //       mainAxisSize: MainAxisSize.min,
+                      //       children: [
+                      //         Icon(Icons.chevron_right, color: Colors.grey),
+                      //       ],
+                      //     ),
+                      //     onTap: () {
+                      //       // Handle tap
+                      //     },
+                      //   ),
+                      // ),
 
-                      const SizedBox(height: 16),
+                      // const SizedBox(height: 16),
 
                       const Align(
                         alignment: Alignment.centerLeft,
@@ -407,6 +398,7 @@ class _ProfileCardScreenState extends State<ProfileCardScreen> {
                           onTap: () {
                             // Handle tap
                             // showLogoutDialog(context);
+                            showDeleteAccDialog(context);
                           },
                         ),
                       ),
@@ -446,6 +438,7 @@ Future<void> showLogoutDialog(BuildContext context) async {
     barrierDismissible: false, // User must tap a button
     builder: (BuildContext context) {
       return AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Log out'),
         content: const Text('Are you sure you want to log out?'),
         actions: <Widget>[
@@ -465,6 +458,49 @@ Future<void> showLogoutDialog(BuildContext context) async {
                   builder: (context) => const LoginScreen(),
                 ),
               );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> showDeleteAccDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // User must tap a button
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Delete Account'),
+        content: const Text('Are you sure you want to delete account?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+          ),
+          TextButton(
+            child: const Text('Ok'),
+            onPressed: () async {
+              final result = await Auth().deleteAccount();
+              if (result) {
+                Session.logout();
+                Navigator.of(context).pop(); // Dismiss the dialog
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("User account not deleted"),
+                  ),
+                );
+              }
             },
           ),
         ],

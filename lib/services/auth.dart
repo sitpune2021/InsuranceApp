@@ -319,4 +319,102 @@ class Auth {
       return []; // Return an empty list in case of an error
     }
   }
+
+  Future<bool> rejectAppointment(int appointmentId, String reason) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      int? userid = preferences.getInt("id");
+      final response = await http.post(
+        Uri.parse(Constants.rejectAppointment),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: jsonEncode(<String, dynamic>{
+          "appointment_id": appointmentId,
+          "technician_id": userid,
+          "reason": reason,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonresponse = jsonDecode(response.body);
+        if (kDebugMode) {
+          print("rejected response$jsonresponse");
+        }
+        return true;
+      } else {
+        if (kDebugMode) {
+          print("rejected response not working");
+        }
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching appointments: $e");
+      }
+    }
+
+    return false;
+  }
+
+  void sendTokenToBackend(String? fcmtoken) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final name = preferences.get("userMobile");
+
+    if (fcmtoken != null) {
+      final response = await http.post(
+        Uri.parse(Constants.updateFcmToken),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: jsonEncode(
+          <String, dynamic>{'mobileno': name, 'fcmtokenkey': fcmtoken},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        print("Token updated successfully");
+      } else {
+        print("Failed to update token");
+      }
+    }
+  }
+
+  Future<bool> deleteAccount() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? userid = prefs.getInt("id");
+      final response = await http.put(
+        Uri.parse(Constants.deleteUser + userid!.toString()),
+        // headers: <String, String>{'Content-Type': 'application/json'},
+        // body: jsonEncode(
+        //   <String, dynamic>{'userid': userid},
+        // ),
+      );
+
+      if (response.statusCode == 200) {
+        print("User deleted");
+        return true;
+      } else {
+        print("Failed to delete user");
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error deleting account: $e");
+      }
+      return false;
+    }
+  }
+
+  Future<List<String>> testRemarks() async {
+    try {
+      final response = await http.get(Uri.parse(Constants.testRemarks));
+      if (response.statusCode == 200) {
+        final jsonresponse = jsonDecode(response.body);
+        return jsonresponse;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("error in testremark $e");
+      return [];
+    }
+  }
 }

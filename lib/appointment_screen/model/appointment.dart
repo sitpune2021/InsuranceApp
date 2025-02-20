@@ -6,29 +6,33 @@ class Appointment {
   final String time;
   final String date;
   final String mobileno;
+  final String? status;
+  final String? rejected_status;
 
   // Constructor
-  Appointment({
-    required this.appointment_id,
-    required this.appointment_no,
-    required this.clientName,
-    required this.medicalTests,
-    required this.time,
-    required this.date,
-    required this.mobileno,
-  });
+  Appointment(
+      {required this.appointment_id,
+      required this.appointment_no,
+      required this.clientName,
+      required this.medicalTests,
+      required this.time,
+      required this.date,
+      required this.mobileno,
+      this.status,
+      this.rejected_status});
 
   // Method to convert all fields to lowercase and return a new instance
   Appointment toLowerCase() {
     return Appointment(
-      appointment_id: appointment_id,
-      appointment_no: appointment_no.toLowerCase(),
-      clientName: clientName.toLowerCase(),
-      medicalTests: medicalTests.toLowerCase(),
-      time: time.toLowerCase(),
-      date: date.toLowerCase(),
-      mobileno: mobileno.toLowerCase(),
-    );
+        appointment_id: appointment_id,
+        appointment_no: appointment_no.toLowerCase(),
+        clientName: clientName.toLowerCase(),
+        medicalTests: medicalTests.toLowerCase(),
+        time: time.toLowerCase(),
+        date: date.toLowerCase(),
+        mobileno: mobileno.toLowerCase(),
+        status: status!.toLowerCase(),
+        rejected_status: rejected_status!.toLowerCase());
   }
 
   // Method to return a JSON representation of the object
@@ -47,15 +51,16 @@ class Appointment {
   // Factory method to create an Appointment from JSON
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
-      appointment_id: json['appointment_id'],
-      appointment_no: json['appointment_no'] ?? '',
-      clientName:
-          json['name'] ?? 'Unknown Client', // Fallback to a default value
-      medicalTests: json['treatment'] ?? 'Not Specified',
-      time: json['time'] ?? '00:00', // Use a default time format
-      date: json['time'] ?? 'date not available', // Use a default date format
-      mobileno: json['mobileno'] ?? 'not found',
-    );
+        appointment_id: json['appointment_id'],
+        appointment_no: json['appointment_no'] ?? '',
+        clientName:
+            json['name'] ?? 'Unknown Client', // Fallback to a default value
+        medicalTests: json['treatment'] ?? 'Not Specified',
+        time: json['time'] ?? '00:00', // Use a default time format
+        date: json['time'] ?? 'date not available', // Use a default date format
+        mobileno: json['mobileno'] ?? 'not found',
+        status: json['status'] ?? "not defined",
+        rejected_status: json['rejected_status'] ?? "not defined");
   }
 
   // Override toString for better debugging and logging
