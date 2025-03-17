@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:insurance/appointment_details/appointment_details.dart';
 import 'package:insurance/appointment_screen/appointment_screen.dart';
+import 'package:insurance/appointment_screen/completed_appointment_details/completed_appointment_details.dart';
 import 'package:insurance/appointment_screen/model/appointment.dart';
 import 'package:insurance/services/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -168,11 +169,11 @@ class _AppointmentMainScreenState extends State<AppointmentMainScreen> {
   Widget _buildRow(int id, String name, String medicalTests, String time,
       String date, String appointment_no, String mobileno) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           border: Border(
               bottom: BorderSide(
                   width: 1,
-                  color: const Color.fromARGB(255, 215, 213, 213),
+                  color: Color.fromARGB(255, 215, 213, 213),
                   style: BorderStyle.solid))),
       child: ListTile(
         // trailing: Row(
@@ -222,6 +223,16 @@ class _AppointmentMainScreenState extends State<AppointmentMainScreen> {
           style: _biggerFont,
         ),
         onTap: () {
+          print(
+              "*******************completed appointment appointment id $id *******************");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AppointmentViewerScreen(
+                appointmentId: id, // Replace with the actual appointment ID
+              ),
+            ),
+          );
           // Navigator.push(
           //     context,
           //     MaterialPageRoute(

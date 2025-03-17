@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(
                   height: 10,
                 ),
-                Divider(),
+                const Divider(),
                 FutureBuilder<List<Appointment>>(
                   future: Auth().getScheduleAppointments(),
                   builder: (context, snapshot) {
