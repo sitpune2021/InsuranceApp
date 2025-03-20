@@ -8,18 +8,21 @@ class Appointment {
   final String mobileno;
   final String? status;
   final String? rejected_status;
+  final String? address;
 
   // Constructor
-  Appointment(
-      {required this.appointment_id,
-      required this.appointment_no,
-      required this.clientName,
-      required this.medicalTests,
-      required this.time,
-      required this.date,
-      required this.mobileno,
-      this.status,
-      this.rejected_status});
+  Appointment({
+    required this.appointment_id,
+    required this.appointment_no,
+    required this.clientName,
+    required this.medicalTests,
+    required this.time,
+    required this.date,
+    required this.mobileno,
+    this.status,
+    this.rejected_status,
+    this.address,
+  });
 
   // Method to convert all fields to lowercase and return a new instance
   Appointment toLowerCase() {
@@ -32,7 +35,8 @@ class Appointment {
         date: date.toLowerCase(),
         mobileno: mobileno.toLowerCase(),
         status: status!.toLowerCase(),
-        rejected_status: rejected_status!.toLowerCase());
+        rejected_status: rejected_status!.toLowerCase(),
+        address: address!.toLowerCase());
   }
 
   // Method to return a JSON representation of the object
@@ -45,6 +49,7 @@ class Appointment {
       'time': time,
       'date': date,
       'mobileno': mobileno,
+      'address': address
     };
   }
 
@@ -60,7 +65,8 @@ class Appointment {
         date: json['time'] ?? 'date not available', // Use a default date format
         mobileno: json['mobileno'] ?? 'not found',
         status: json['status'] ?? "not defined",
-        rejected_status: json['rejected_status'] ?? "not defined");
+        rejected_status: json['rejected_status'] ?? "not defined",
+        address: json['address'] ?? "not defined");
   }
 
   // Override toString for better debugging and logging

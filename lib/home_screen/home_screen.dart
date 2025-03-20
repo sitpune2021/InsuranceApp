@@ -224,14 +224,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, index) {
                                 final appointment = snapshot.data?[index];
                                 return _buildRow(
-                                  appointment!.appointment_id,
-                                  appointment.clientName,
-                                  appointment.medicalTests,
-                                  appointment.time,
-                                  appointment.date,
-                                  appointment.appointment_no,
-                                  appointment.mobileno,
-                                );
+                                    appointment!.appointment_id,
+                                    appointment.clientName,
+                                    appointment.medicalTests,
+                                    appointment.time,
+                                    appointment.date,
+                                    appointment.appointment_no,
+                                    appointment.mobileno,
+                                    appointment.address ?? "not defined");
                               });
                     }
                     return const Center(
@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRow(int id, String name, String medicalTests, String time,
-      String date, String appointment_no, String mobileno) {
+      String date, String appointment_no, String mobileno, String address) {
     return Container(
       decoration: const BoxDecoration(
           border: Border(
@@ -348,6 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   time: time,
                   appointment_id: id,
                   appointment_no: appointment_no,
+                  address: address,
                 ),
               ));
 

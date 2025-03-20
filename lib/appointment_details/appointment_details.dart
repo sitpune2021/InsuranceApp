@@ -26,6 +26,7 @@ class AppointmentDetails extends StatefulWidget {
   final String date;
   final String time;
   final String appointment_no;
+  final String address;
   const AppointmentDetails(
       {super.key,
       required this.clientName,
@@ -33,7 +34,8 @@ class AppointmentDetails extends StatefulWidget {
       required this.date,
       required this.time,
       required this.appointment_id,
-      required this.appointment_no});
+      required this.appointment_no,
+      required this.address});
 
   @override
   State<AppointmentDetails> createState() => _AppointmentDetailsState();
@@ -58,7 +60,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   late TextEditingController _dateController;
   late TextEditingController _timeController;
   final _descriptionController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+  late TextEditingController addressController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -839,6 +841,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     _nameController = TextEditingController(text: "Name: ${widget.clientName}");
     _medicalreportsController =
         TextEditingController(text: "Lab Reports: ${widget.medicalreports}");
+    addressController =
+        TextEditingController(text: "Address: ${widget.address}");
     _dateController = TextEditingController(text: "Date: ${widget.date}");
     _timeController = TextEditingController(text: "Time: ${widget.time}");
     help().then((_) {
@@ -911,6 +915,23 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                 ),
                 child: Text(
                   "Medical Reports:\n${widget.medicalreports}",
+                  style: const TextStyle(
+                      fontSize: 16), // Adjust text style for better readability
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding:
+                    const EdgeInsets.all(12), // Padding for better appearance
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color:
+                          Colors.grey), // Border similar to OutlineInputBorder
+                  borderRadius: BorderRadius.circular(
+                      4), // Rounded corners like TextField
+                ),
+                child: Text(
+                  "Address:\n${widget.address}",
                   style: const TextStyle(
                       fontSize: 16), // Adjust text style for better readability
                 ),

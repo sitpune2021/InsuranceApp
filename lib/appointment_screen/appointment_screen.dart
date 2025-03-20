@@ -179,15 +179,18 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                     final appointment =
                                         filteredAppointments[index];
                                     return _buildRowForTotalAppointmentStatus(
-                                        appointment.appointment_id,
-                                        appointment.clientName,
-                                        appointment.medicalTests,
-                                        appointment.time,
-                                        appointment.date,
-                                        appointment.appointment_no,
-                                        appointment.mobileno,
-                                        appointment.status ?? "not defined",
-                                        appointment.rejected_status ?? "nott");
+                                      appointment.appointment_id,
+                                      appointment.clientName,
+                                      appointment.medicalTests,
+                                      appointment.time,
+                                      appointment.date,
+                                      appointment.appointment_no,
+                                      appointment.mobileno,
+                                      appointment.status ?? "not defined",
+                                      appointment.rejected_status ??
+                                          "not defined",
+                                      appointment.address ?? "not defined",
+                                    );
                                   })
                               : (index != 3)
                                   ? ListView.builder(
@@ -319,15 +322,18 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                             ],
                                           ),
                                           child: _buildRow(
-                                              appointment.appointment_id,
-                                              appointment.clientName,
-                                              appointment.medicalTests,
-                                              appointment.time,
-                                              appointment.date,
-                                              appointment.appointment_no,
-                                              appointment.mobileno,
-                                              appointment.rejected_status ??
-                                                  "not defined"),
+                                            appointment.appointment_id,
+                                            appointment.clientName,
+                                            appointment.medicalTests,
+                                            appointment.time,
+                                            appointment.date,
+                                            appointment.appointment_no,
+                                            appointment.mobileno,
+                                            appointment.rejected_status ??
+                                                "not defined",
+                                            appointment.address ??
+                                                "not defined",
+                                          ),
                                         );
                                       })
                                   : ListView.builder(
@@ -337,15 +343,17 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                         final appointment =
                                             filteredAppointments[index];
                                         return _buildRowForRejectedAppointmentStatus(
-                                            appointment.appointment_id,
-                                            appointment.clientName,
-                                            appointment.medicalTests,
-                                            appointment.time,
-                                            appointment.date,
-                                            appointment.appointment_no,
-                                            appointment.mobileno,
-                                            appointment.status ?? "not defined",
-                                            appointment.rejected_status ?? "b");
+                                          appointment.appointment_id,
+                                          appointment.clientName,
+                                          appointment.medicalTests,
+                                          appointment.time,
+                                          appointment.date,
+                                          appointment.appointment_no,
+                                          appointment.mobileno,
+                                          appointment.status ?? "not defined",
+                                          appointment.rejected_status ?? "b",
+                                          appointment.address ?? "not defined",
+                                        );
                                       })),
                 ],
               ),
@@ -357,14 +365,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   }
 
   Widget _buildRow(
-      int id,
-      String name,
-      String medicalTests,
-      String time,
-      String date,
-      String appointment_no,
-      String mobileno,
-      String rejectedStatus) {
+    int id,
+    String name,
+    String medicalTests,
+    String time,
+    String date,
+    String appointment_no,
+    String mobileno,
+    String rejectedStatus,
+    String address,
+  ) {
     return Container(
       decoration: const BoxDecoration(
           border: Border(
@@ -436,6 +446,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   time: time,
                   appointment_id: id,
                   appointment_no: appointment_no,
+                  address: address,
                 ),
               ));
 
@@ -453,15 +464,17 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   }
 
   Widget _buildRowForTotalAppointmentStatus(
-      int id,
-      String name,
-      String medicalTests,
-      String time,
-      String date,
-      String appointment_no,
-      String mobileno,
-      String status,
-      String rejected_status) {
+    int id,
+    String name,
+    String medicalTests,
+    String time,
+    String date,
+    String appointment_no,
+    String mobileno,
+    String status,
+    String rejected_status,
+    String address,
+  ) {
     return Container(
       decoration: const BoxDecoration(
           border: Border(
@@ -546,15 +559,17 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   }
 
   Widget _buildRowForRejectedAppointmentStatus(
-      int id,
-      String name,
-      String medicalTests,
-      String time,
-      String date,
-      String appointment_no,
-      String mobileno,
-      String status,
-      String rejected_status) {
+    int id,
+    String name,
+    String medicalTests,
+    String time,
+    String date,
+    String appointment_no,
+    String mobileno,
+    String status,
+    String rejected_status,
+    String address,
+  ) {
     return Container(
       decoration: const BoxDecoration(
           border: Border(
