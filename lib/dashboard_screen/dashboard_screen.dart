@@ -4,6 +4,7 @@ import 'package:insurance/appointment_screen/appointment_main_screen.dart';
 import 'package:insurance/appointment_screen/appointment_screen.dart';
 import 'package:insurance/home_screen/home_screen.dart';
 import 'package:insurance/profile_screen/profile_screen.dart';
+import 'package:insurance/profile_screen/profile_screen_new.dart';
 import 'package:insurance/widgets/no_internet_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,6 +93,8 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
+      elevation: 10,
+      shadowColor: Colors.grey,
       height: 70,
       color: Colors.white,
       child: Padding(
@@ -139,12 +142,13 @@ class CustomBottomNavBar extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: isSelected ? Colors.blue : Colors.black,
+            color: isSelected ? const Color(0xFF546AE4) : Colors.black,
           ),
+          // if (isSelected)
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.blue : Colors.black,
+              color: isSelected ? const Color(0xFF546AE4) : Colors.black,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

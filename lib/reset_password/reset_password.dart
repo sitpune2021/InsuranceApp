@@ -162,8 +162,8 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
               height: 400,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
-                  fit: BoxFit.fill,
+                  image: AssetImage('assets/images/login.png'),
+                  fit: BoxFit.contain,
                 ),
               ),
               child: Stack(
@@ -184,24 +184,24 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    child: FadeInUp(
-                      duration: const Duration(milliseconds: 1600),
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 0),
-                        child: const Center(
-                          child: Text(
-                            "Set New Password",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   child: FadeInUp(
+                  //     duration: const Duration(milliseconds: 1600),
+                  //     child: Container(
+                  //       margin: const EdgeInsets.only(top: 0),
+                  //       child: const Center(
+                  //         child: Text(
+                  //           "Set New Password",
+                  //           style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 35,
+                  //             fontWeight: FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -297,14 +297,15 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color.fromRGBO(143, 148, 251, 1),
-                                Color.fromRGBO(143, 148, 251, .6),
-                              ],
-                            ),
-                          ),
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color(0xff546AE4)
+                              // gradient: const LinearGradient(
+                              //   colors: [
+                              //     Color.fromRGBO(143, 148, 251, 1),
+                              //     Color.fromRGBO(143, 148, 251, .6),
+                              //   ],
+                              // ),
+                              ),
                           child: Center(
                             child: _isLoading
                                 ? const CircularProgressIndicator(

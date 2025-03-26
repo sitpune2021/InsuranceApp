@@ -73,20 +73,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   List<File> _images = []; // List to store selected images
   bool _imageLoading = false; // Loading state
 
-  // final List<String> _remarks = [
-  //   "Patient not available",
-  //   "Technical issue",
-  //   "Incomplete documents",
-  //   "Other"
-  // ];
-
-  // List<String> _remarks = [
-  //   "Patient not available",
-  //   "Technical issue",
-  //   "Incomplete documents",
-  //   "Other"
-  // ];
-
   String? _selectedRemark;
 
   Future<void> fetchRemarks() async {
@@ -129,168 +115,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     }
   }
 
-  // Capture, annotate, and save to gallery
-// Capture, annotate, and save to gallery
-// commented by me from here to
-  // Future<void> _captureAndSave() async {
-  //   try {
-  //     // Ensure the camera is initialized
-  //     await _initializeControllerFuture;
-
-  //     // Take the picture
-  //     final xFile = await _controller.takePicture();
-
-  //     // Load the captured image into memory
-  //     final byteData = await File(xFile.path).readAsBytes();
-  //     final imageBytes = Uint8List.fromList(byteData);
-
-  //     // Get the current location
-  //     Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high,
-  //     );
-
-  //     // Convert coordinates to an address
-  //     final address = await _getAddressFromPosition(position);
-
-  //     // Fetch a static map image with a marker
-  //     final mapUrl =
-  //         "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=300x150&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
-  //     final mapResponse = await http.get(Uri.parse(mapUrl));
-  //     if (mapResponse.statusCode != 200) {
-  //       debugPrint("Failed to load map image.");
-  //       return;
-  //     }
-  //     final mapBytes = mapResponse.bodyBytes;
-
-  //     // Decode both images (photo and map)
-  //     img.Image? capturedImage = img.decodeImage(imageBytes);
-  //     img.Image? mapImage = img.decodeImage(mapBytes);
-
-  //     if (capturedImage == null || mapImage == null) {
-  //       debugPrint("Unable to decode images.");
-  //       return;
-  //     }
-
-  //     // Resize the map image to make it smaller
-  //     final resizedMap = img.copyResize(mapImage, width: 400, height: 200);
-
-  //     // Prepare text for geotag info
-  //     final now = DateTime.now();
-  //     final dateTimeStr =
-  //         "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-  //     final geotagText = "Address:\n$address\n\n"
-  //         "Coordinates:\n${position.latitude}, ${position.longitude}\n\n"
-  //         "Date & Time:\n$dateTimeStr";
-
-  //     // Determine text box dimensions
-  //     final textBoxWidth = 400;
-  //     final textBoxHeight = 120;
-
-  //     // Create a new canvas to hold the original photo and additional info
-  //     final extendedImage = img.copyResize(
-  //       capturedImage,
-  //       height: capturedImage.height + resizedMap.height + textBoxHeight,
-  //     );
-
-  //     // Add the map image at the bottom left
-  //     img.copyInto(extendedImage, resizedMap,
-  //         dstX: 0, dstY: capturedImage.height + 10);
-
-  //     // Add geotag text next to the map
-  //     img.fillRect(
-  //       extendedImage,
-  //       220, // x-coordinate for text box background
-  //       capturedImage.height + 10, // y-coordinate for text box
-  //       220 + textBoxWidth,
-  //       capturedImage.height + 10 + textBoxHeight,
-  //       img.getColor(0, 0, 0, 150), // Semi-transparent black background
-  //     );
-  //     img.drawString(
-  //       extendedImage,
-  //       img.arial_14,
-  //       230, // x-coordinate for text
-  //       capturedImage.height + 20, // y-coordinate for text
-  //       geotagText,
-  //       color: img.getColor(255, 255, 255), // White text
-  //     );
-
-  //     // Encode the final image
-  //     final finalBytes = Uint8List.fromList(img.encodeJpg(extendedImage));
-
-  //     // Save the final annotated image to the gallery
-  //     final result = await ImageGallerySaverPlus.saveImage(
-  //       finalBytes,
-  //       name: "GeotaggedPhoto_${DateTime.now().millisecondsSinceEpoch}",
-  //       quality: 100,
-  //     );
-
-  //     debugPrint("Save result: $result");
-
-  //     if (!mounted) return;
-
-  //     // Show a confirmation dialog
-  //     showDialog(
-  //       context: context,
-  //       builder: (_) => AlertDialog(
-  //         title: const Text("Photo Saved"),
-  //         content: Text(
-  //           "Photo saved with geotag info and map.\n\n"
-  //           "Coordinates: (${position.latitude}, ${position.longitude})\n"
-  //           "Address: $address\n"
-  //           "Saved At: $dateTimeStr",
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.of(context).pop(),
-  //             child: const Text("OK"),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     debugPrint("Error capturing and saving photo: $e");
-  //   }
-  // }
-
-  // Future<void> _sendImageWithGeotag(
-  //     File image, double latitude, double longitude, String description) async {
-  //   try {
-  //     final uri = Uri.parse(
-  //         "http://3.109.174.127:3005/addappointmentapp"); // Replace with your API endpoint
-  //     final request = http.MultipartRequest('POST', uri);
-
-  //     // Add image file to the request
-  //     request.files.add(await http.MultipartFile.fromPath(
-  //       'image',
-  //       image.path,
-  //     ));
-
-  //     request.fields['description'] = description.toString();
-  //     // Add geotag to the request
-  //     request.fields['latitude'] = latitude.toString();
-  //     request.fields['longitude'] = longitude.toString();
-
-  //     // Send the request
-  //     final response = await request.send();
-  //     if (response.statusCode == 200) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text("Image uploaded successfully!")),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //             content: Text(
-  //                 "Failed to upload image. Status: ${response.statusCode}")),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Error uploading image: $e")),
-  //     );
-  //   }
-  // }
-
-// here on 20/02/2025
   Future<void> _sendData() async {
     if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -336,10 +160,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       request.fields['latitude'] = latitude?.toString() ?? '';
       request.fields['longitude'] = longitude?.toString() ?? '';
 
-      // //new fields
-      // request.fields['video'] =
-      //     _vedio != null ? _vedio!.path : 'no vedio selected';
-      // Add video file to request (if available)
       if (_vedio != null) {
         final videoFile = File(_vedio!.path);
 
@@ -395,28 +215,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       setState(() {
         _isLoading = false;
       });
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   Navigator.of(context).pop(
-      //       // MaterialPageRoute(
-      //       //     builder: (context) => const AppointmentScreen(
-      //       //           i: 1,
-      //       //         )),
-      //       );
-      // });
     }
   }
-
-  // Future<void> _pickImage() async {
-  //   final pickedFile =
-  //       await ImagePicker().pickImage(source: ImageSource.camera);
-
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _image = File(pickedFile.path);
-  //     });
-
-  //   }
-  // }
 
   Future<void> _pickVideo() async {
     final pickedVideo =
@@ -442,111 +242,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       });
     }
   }
-
-//   Future<void> _pickImagec() async {
-//     try {
-//       final pickedFile =
-//           await ImagePicker().pickImage(source: ImageSource.camera);
-//       setState(() {
-//         _imageloading = true;
-//       });
-
-//       if (pickedFile != null) {
-//         File imageFile = File(pickedFile.path);
-//         final imageBytes = await imageFile.readAsBytes();
-
-//         // Decode the captured image
-//         img.Image capturedImage = img.decodeImage(imageBytes)!;
-
-//         // Get current location (latitude and longitude)
-//         Position position = await Geolocator.getCurrentPosition(
-//             desiredAccuracy: LocationAccuracy.high);
-
-//         // Get address from latitude and longitude
-//         List<Placemark> placemarks = await GeocodingPlatform.instance!
-//             .placemarkFromCoordinates(position.latitude, position.longitude);
-//         Placemark place = placemarks.first;
-
-//         final geotagText =
-//             "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
-
-//         // Calculate the dimensions for the map and text area
-//         final mapWidth = capturedImage.width ~/ 2; // Half of the image width
-//         final mapHeight = (mapWidth * 150) / 300; // Aspect ratio 300x150
-//         final textBoxWidth =
-//             capturedImage.width ~/ 2; // Other half for the text
-//         final textBoxHeight = mapHeight.toInt(); // Match map height
-
-//         // Construct the Google Maps static URL for the map image
-//         final mapUrl =
-//             "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=AIzaSyD9XZBYlnwfrKQ1ZK-EUxJtFePKXW_1sfE";
-
-//         // Fetch the map image
-//         final response = await http.get(Uri.parse(mapUrl));
-//         if (response.statusCode == 200) {
-//           img.Image mapImage =
-//               img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
-
-//           // Prepare text for geotag info
-//           final now = DateTime.now();
-//           final dateTimeStr =
-//               "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-//           final geotagTextWithDate =
-//               "$geotagText\n\nDate & Time:\n$dateTimeStr";
-
-//           // Create a new canvas to hold the original photo, map, and text
-//           final extendedImage = img.Image(
-//             capturedImage.width,
-//             capturedImage.height + mapHeight.toInt(),
-//           );
-
-// // Place the original image
-//           img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
-
-// // Place the map in the bottom left
-//           img.copyInto(extendedImage, mapImage,
-//               dstX: 0, dstY: capturedImage.height);
-
-// // Draw the black background for the text box
-//           img.fillRect(
-//             extendedImage,
-//             mapWidth, // Start at the right of the map
-//             capturedImage.height, // Align with the map's top edge
-//             capturedImage.width, // End at the canvas width
-//             capturedImage.height + mapHeight.toInt(), // Match map height
-//             img.getColor(0, 0, 0, 255), // Opaque black
-//           );
-
-// // Add the geotag text in the black box
-//           img.drawString(
-//             extendedImage,
-//             img.arial_48, // Larger font size
-//             mapWidth + 10, // Padding inside the black box
-//             capturedImage.height + 10, // Padding from the top edge
-//             geotagTextWithDate,
-//             color: img.getColor(255, 255, 255), // White text
-//           );
-//           // Save the updated image
-//           final updatedImageBytes = img.encodeJpg(extendedImage);
-//           final updatedImageFile = File(pickedFile.path)
-//             ..writeAsBytesSync(updatedImageBytes);
-
-//           setState(() {
-//             _image = updatedImageFile; // Save the updated image
-//             _imageloading = false;
-//           });
-//         } else {
-//           debugPrint("Failed to load map image: ${response.statusCode}");
-//         }
-//       } else {
-//         setState(() {
-//           _imageloading = false;
-//         });
-//       }
-//     } catch (e) {
-//       debugPrint("Error capturing and saving photo: $e");
-//     }
-//   }
 
   Future<void> _pickImage() async {
     try {
@@ -661,171 +356,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     }
   }
 
-// List<File> _images = []; // List to store multiple images
-// bool _imageLoading = false; // Loading state
-
-  // Future<void> _pickMultipleImagess() async {
-  //   try {
-  //     List<File> tempImages = [];
-  //     bool capturing = true; // Control variable for loop
-
-  //     while (capturing) {
-  //       final pickedFile =
-  //           await ImagePicker().pickImage(source: ImageSource.camera);
-
-  //       if (pickedFile == null) {
-  //         capturing = false; // Exit loop if user cancels
-  //         break;
-  //       }
-
-  //       setState(() {
-  //         _imageLoading = true;
-  //       });
-
-  //       File imageFile = File(pickedFile.path);
-  //       final imageBytes = await imageFile.readAsBytes();
-
-  //       // Decode the captured image
-  //       img.Image capturedImage = img.decodeImage(imageBytes)!;
-
-  //       // Get current location
-  //       Position position = await Geolocator.getCurrentPosition(
-  //           desiredAccuracy: LocationAccuracy.high);
-
-  //       // Get address from latitude and longitude
-  //       List<Placemark> placemarks = await GeocodingPlatform.instance!
-  //           .placemarkFromCoordinates(position.latitude, position.longitude);
-  //       Placemark place = placemarks.first;
-
-  //       final geotagText =
-  //           "Latitude: ${position.latitude}\nLongitude: ${position.longitude}\nAddress: ${place.street}, ${place.locality}, ${place.country}";
-
-  //       // Calculate dimensions for the map and text area
-  //       final mapWidth = capturedImage.width ~/ 2;
-  //       final mapHeight = (mapWidth * 150) / 300;
-
-  //       // Construct Google Maps static URL
-  //       final mapUrl =
-  //           "https://maps.googleapis.com/maps/api/staticmap?center=${position.latitude},${position.longitude}&zoom=15&size=${mapWidth}x${mapHeight.toInt()}&markers=color:red%7Clabel:C%7C${position.latitude},${position.longitude}&key=YOUR_GOOGLE_MAPS_API_KEY";
-
-  //       // Fetch map image
-  //       final response = await http.get(Uri.parse(mapUrl));
-  //       if (response.statusCode == 200) {
-  //         img.Image mapImage =
-  //             img.decodeImage(Uint8List.fromList(response.bodyBytes))!;
-
-  //         // Prepare text for geotag info
-  //         final now = DateTime.now();
-  //         final dateTimeStr =
-  //             "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}:${now.second}";
-  //         final geotagTextWithDate =
-  //             "$geotagText\n\nDate & Time:\n$dateTimeStr";
-
-  //         // Create a new canvas to hold the original photo, map, and text
-  //         final extendedImage = img.Image(
-  //           capturedImage.width,
-  //           capturedImage.height + mapHeight.toInt(),
-  //         );
-
-  //         // Place the original image
-  //         img.copyInto(extendedImage, capturedImage, dstX: 0, dstY: 0);
-
-  //         // Place the map in the bottom left
-  //         img.copyInto(extendedImage, mapImage,
-  //             dstX: 0, dstY: capturedImage.height);
-
-  //         // Draw the black background for the text box
-  //         img.fillRect(
-  //           extendedImage,
-  //           mapWidth,
-  //           capturedImage.height,
-  //           capturedImage.width,
-  //           capturedImage.height + mapHeight.toInt(),
-  //           img.getColor(0, 0, 0, 255),
-  //         );
-
-  //         // Add the geotag text in the black box
-  //         img.drawString(
-  //           extendedImage,
-  //           img.arial_48,
-  //           mapWidth + 10,
-  //           capturedImage.height + 10,
-  //           geotagTextWithDate,
-  //           color: img.getColor(255, 255, 255),
-  //         );
-
-  //         // Save the updated image
-  //         final updatedImageBytes = img.encodeJpg(extendedImage);
-  //         final updatedImageFile = File(pickedFile.path)
-  //           ..writeAsBytesSync(updatedImageBytes);
-
-  //         tempImages.add(updatedImageFile);
-  //       } else {
-  //         debugPrint("Failed to load map image: ${response.statusCode}");
-  //       }
-
-  //       setState(() {
-  //         _imageLoading = false;
-  //       });
-
-  //       // Ask the user if they want to take another picture
-  //       capturing = await _askUserToContinue();
-  //     }
-
-  //     if (tempImages.isNotEmpty) {
-  //       setState(() {
-  //         _images.addAll(tempImages);
-  //       });
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error capturing and saving multiple photos: $e");
-  //   }
-  // }
-
-  // Future<bool> _askUserToContinue() async {
-  //   return await showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: Text("Capture More?"),
-  //           content: Text("Do you want to take another picture?"),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(false),
-  //               child: Text("No"),
-  //             ),
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(true),
-  //               child: Text("Yes"),
-  //             ),
-  //           ],
-  //         ),
-  //       ) ??
-  //       false;
-  // }
-
-  // Future<void> _pickMultipleImages() async {
-  //   try {
-  //     final pickedFiles = await ImagePicker().pickMultiImage();
-  //     if (pickedFiles != null && pickedFiles.isNotEmpty) {
-  //       setState(() {
-  //         _imageLoading = true;
-  //       });
-
-  //       List<File> tempImages = [];
-  //       for (var pickedFile in pickedFiles) {
-  //         tempImages.add(File(pickedFile.path));
-  //       }
-
-  //       setState(() {
-  //         _images = tempImages;
-  //         _imageLoading = false;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error selecting images: $e");
-  //   }
-  // }
-
   /// Function to remove an image from the list
   void _removeImage(int index) {
     setState(() {
@@ -880,13 +410,15 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 1.0,
-        backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
-        title: const Text("Appointment Detail"),
-        actions: <Widget>[
-          IconButton(
-              onPressed: () {}, icon: const Icon(Icons.more_vert_outlined))
-        ],
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 5,
+        shadowColor: Colors.grey,
+        backgroundColor: const Color(0xFF546AE4),
+        title: const Text(
+          "Appointment Detail",
+          style: TextStyle(color: Colors.white),
+        ),
+        toolbarHeight: 80,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -1363,10 +895,11 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      gradient: const LinearGradient(colors: [
-                        Color.fromRGBO(143, 148, 251, 1),
-                        Color.fromRGBO(143, 148, 251, .6),
-                      ]),
+                      // gradient: const LinearGradient(colors: [
+                      //   Color.fromRGBO(143, 148, 251, 1),
+                      //   Color.fromRGBO(143, 148, 251, .6),
+                      // ]),
+                      color: const Color(0xFF546AE4),
                     ),
                     child: Center(
                       child: _isLoading

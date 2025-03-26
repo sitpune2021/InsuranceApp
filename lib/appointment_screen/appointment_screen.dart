@@ -140,8 +140,49 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
-          title: const Text("Appointments"),
+          automaticallyImplyLeading: false,
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 5,
+          shadowColor: Colors.grey,
+          backgroundColor: const Color(0xFF546AE4), // Blue background
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Appointments",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30), // Rounded border
+                ),
+                child: TextField(
+                  onChanged: _filterAppointments,
+                  decoration: const InputDecoration(
+                    hintText: "Search",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          toolbarHeight: 150, // Increased height to fit search bar
         ),
         body: RefreshIndicator(
           backgroundColor: Colors.white,
@@ -151,25 +192,27 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             child: FadeInUp(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TextField(
-                      onChanged: _filterAppointments,
-                      decoration: InputDecoration(
-                        labelText: "Search",
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  //   child: TextField(
+                  //     onChanged: _filterAppointments,
+                  //     decoration: InputDecoration(
+                  //       labelText: "Search",
+                  //       prefixIcon: const Icon(Icons.search),
+                  //       border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(8.0),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(height: 10),
                   Expanded(
                       child: filteredAppointments.isEmpty
-                          ? const Text(
-                              "No Appointments available",
-                              style: TextStyle(color: Colors.pink),
+                          ? const Center(
+                              child: Text(
+                                "No Appointments available",
+                                style: TextStyle(color: Colors.pink),
+                              ),
                             )
                           : (widget.i == 0 || index == 0)
                               ? ListView.builder(
@@ -375,90 +418,99 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     String rejectedStatus,
     String address,
   ) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  width: 1,
-                  color: Color.fromARGB(255, 215, 213, 213),
-                  style: BorderStyle.solid))),
-      child: ListTile(
-        // trailing: Row(
-        //   mainAxisSize: MainAxisSize.min,
-        //   children: [
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: const Icon(Icons.call),
-        //       color: Colors.green,
-        //     ),
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: const Icon(Icons.keyboard_double_arrow_right_rounded),
-        //       color: Colors.grey,
-        //     ),
-        //   ],
-        // ),
-        trailing: IconButton(
-          onPressed: () {
-            _launchDialer(mobileno.toString().trim());
-          },
-          icon: const Icon(Icons.call),
-          color: Colors.green,
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AppointmentDetails(
+                clientName: name,
+                medicalreports: medicalTests,
+                date: date,
+                time: time,
+                appointment_id: id,
+                appointment_no: appointment_no,
+                address: address,
+              ),
+            ));
+
+        print("result:of backpress1$result");
+
+        if (result == "refresh") {
+          setState(() {
+            _fetchAppointments();
+          }); // Reload data when returning
+          print("result:of backpress2$result");
+        }
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.person,
-            color: Colors.black,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                // decoration: BoxDecoration(
+                //     border: Border.all(
+                //         color: Colors.blue, width: 2, style: BorderStyle.solid),
+                //     borderRadius: BorderRadius.circular(50)),
+                child: const CircleAvatar(
+                  backgroundColor: Color(0xFF546AE4),
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.toString().trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      date.toString().trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      medicalTests.toString().trim(),
+                      style: const TextStyle(color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    if (rejectedStatus == "1")
+                      const Text(
+                        "High Priority",
+                        style: TextStyle(color: Colors.pink),
+                      ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => _launchDialer(mobileno),
+                icon: const Icon(Icons.call, color: Colors.green),
+              ),
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              medicalTests.trim(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              date.trim(),
-              maxLines: 1,
-            ),
-            rejectedStatus == "1"
-                ? Text(
-                    "High Priority",
-                    style: TextStyle(color: Colors.pink),
-                  )
-                : SizedBox()
-          ],
-        ),
-        title: Text(
-          name.trim(),
-          style: _biggerFont,
-        ),
-        onTap: () async {
-          final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AppointmentDetails(
-                  clientName: name,
-                  medicalreports: medicalTests,
-                  date: date,
-                  time: time,
-                  appointment_id: id,
-                  appointment_no: appointment_no,
-                  address: address,
-                ),
-              ));
-
-          print("result:of backpress1$result");
-
-          if (result == "refresh") {
-            setState(() {
-              _fetchAppointments();
-            }); // Reload data when returning
-            print("result:of backpress2$result");
-          }
-        },
       ),
     );
   }
@@ -475,85 +527,91 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     String rejected_status,
     String address,
   ) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  width: 1,
-                  color: Color.fromARGB(255, 215, 213, 213),
-                  style: BorderStyle.solid))),
-      child: ListTile(
-        // trailing: IconButton(
-        //   onPressed: () {
-        //     // here according to status there is no need to show call icon
-
-        //     // _launchDialer(mobileno.toString().trim());
-        //   },
-        //   icon: const Icon(Icons.call),
-        //   color: Colors.green,
-        // ),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.person,
-            color: Colors.black,
-          ),
-        ),
-        subtitle: Column(
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              medicalTests.trim(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            Container(
+              padding: const EdgeInsets.all(2),
+              // decoration: BoxDecoration(
+              //     border: Border.all(
+              //         color: Colors.blue, width: 2, style: BorderStyle.solid),
+              //     borderRadius: BorderRadius.circular(50)),
+              child: const CircleAvatar(
+                backgroundColor: Color(0xFF546AE4),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            Text(
-              date.trim(),
-              maxLines: 1,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.toString().trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    date.toString().trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    medicalTests.toString().trim(),
+                    style: const TextStyle(color: Colors.grey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Text(
+                        "Status: ",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        status.toString().trim(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: status.toString().trim() == "Assigned"
+                                ? Colors.amber[900]
+                                : Colors.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  if (rejected_status == "1")
+                    const Text(
+                      "Rejected",
+                      style: TextStyle(color: Colors.pink),
+                    ),
+                ],
+              ),
             ),
-            // below this text i think i should add status of that appointment.
-            Text(
-              "Status: ${status.trim()}",
-              maxLines: 1,
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-
-            rejected_status == "1"
-                ? Text(
-                    "Rejected",
-                    style: TextStyle(color: Colors.pink),
-                  )
-                : SizedBox()
+            // IconButton(
+            //   onPressed: () => _launchDialer(mobileno),
+            //   icon: const Icon(Icons.call, color: Colors.green),
+            // ),
           ],
         ),
-        title: Text(
-          name.trim(),
-          style: _biggerFont,
-        ),
-        onTap: () async {
-// according to me i think , on tap will not be in use for this module.
-
-          // final result = await Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => AppointmentDetails(
-          //         clientName: name,
-          //         medicalreports: medicalTests,
-          //         date: date,
-          //         time: time,
-          //         appointment_id: id,
-          //         appointment_no: appointment_no,
-          //       ),
-          //     ));
-
-          // print("result:of backpress1$result");
-
-          // if (result == "refresh") {
-          //   setState(() {
-          //     _fetchAppointments();
-          //   }); // Reload data when returning
-          //   print("result:of backpress2$result");
-          // }
-        },
       ),
     );
   }
@@ -570,80 +628,73 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     String rejected_status,
     String address,
   ) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  width: 1,
-                  color: Color.fromARGB(255, 215, 213, 213),
-                  style: BorderStyle.solid))),
-      child: ListTile(
-        // trailing: IconButton(
-        //   onPressed: () {
-        //     // here according to status there is no need to show call icon
-
-        //     // _launchDialer(mobileno.toString().trim());
-        //   },
-        //   icon: const Icon(Icons.call),
-        //   color: Colors.green,
-        // ),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.person,
-            color: Colors.black,
-          ),
-        ),
-        subtitle: Column(
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              medicalTests.trim(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            Container(
+              padding: const EdgeInsets.all(2),
+              // decoration: BoxDecoration(
+              //     border: Border.all(
+              //         color: Colors.blue, width: 2, style: BorderStyle.solid),
+              //     borderRadius: BorderRadius.circular(50)),
+              child: const CircleAvatar(
+                backgroundColor: Color(0xFF546AE4),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            Text(
-              date.trim(),
-              maxLines: 1,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.toString().trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    date.toString().trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    medicalTests.toString().trim(),
+                    style: const TextStyle(color: Colors.grey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  if (rejected_status == "1")
+                    const Text(
+                      "Rejected",
+                      style: TextStyle(color: Colors.pink),
+                    ),
+                ],
+              ),
             ),
-            // below this text i think i should add status of that appointment.
-
-            rejected_status == "1"
-                ? Text(
-                    "Rejected",
-                    style: TextStyle(color: Colors.pink),
-                  )
-                : SizedBox()
+            // IconButton(
+            //   onPressed: () => _launchDialer(mobileno),
+            //   icon: const Icon(Icons.call, color: Colors.green),
+            // ),
           ],
         ),
-        title: Text(
-          name.trim(),
-          style: _biggerFont,
-        ),
-        onTap: () async {
-// according to me i think , on tap will not be in use for this module.
-
-          // final result = await Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => AppointmentDetails(
-          //         clientName: name,
-          //         medicalreports: medicalTests,
-          //         date: date,
-          //         time: time,
-          //         appointment_id: id,
-          //         appointment_no: appointment_no,
-          //       ),
-          //     ));
-
-          // print("result:of backpress1$result");
-
-          // if (result == "refresh") {
-          //   setState(() {
-          //     _fetchAppointments();
-          //   }); // Reload data when returning
-          //   print("result:of backpress2$result");
-          // }
-        },
       ),
     );
   }

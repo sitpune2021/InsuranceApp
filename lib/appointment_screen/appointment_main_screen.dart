@@ -111,8 +111,37 @@ class _AppointmentMainScreenState extends State<AppointmentMainScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
-        title: const Text("Completed Appointments"),
+        elevation: 5,
+        shadowColor: Colors.grey,
+        backgroundColor: const Color(0xFF546AE4), // Blue background
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Completed Appointments",
+              style: TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30), // Rounded border
+              ),
+              child: TextField(
+                onChanged: _filterAppointments,
+                decoration: const InputDecoration(
+                  hintText: "Search",
+                  hintStyle: TextStyle(color: Colors.grey),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+            ),
+          ],
+        ),
+        toolbarHeight: 150, // Increased height to fit search bar
       ),
       body: RefreshIndicator(
         backgroundColor: Colors.white,
@@ -122,25 +151,15 @@ class _AppointmentMainScreenState extends State<AppointmentMainScreen> {
           child: FadeInUp(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: TextField(
-                    onChanged: _filterAppointments,
-                    decoration: InputDecoration(
-                      labelText: "Search",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 10),
                 Expanded(
                   child: filteredAppointments.isEmpty
-                      ? const Text(
-                          "No Appointments available",
-                          style: TextStyle(color: Colors.pink),
+                      ? const Center(
+                          child: const Text(
+                            "No Appointments available",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.pink),
+                          ),
                         )
                       : ListView.builder(
                           shrinkWrap: true,
@@ -168,84 +187,77 @@ class _AppointmentMainScreenState extends State<AppointmentMainScreen> {
 
   Widget _buildRow(int id, String name, String medicalTests, String time,
       String date, String appointment_no, String mobileno) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  width: 1,
-                  color: Color.fromARGB(255, 215, 213, 213),
-                  style: BorderStyle.solid))),
-      child: ListTile(
-        // trailing: Row(
-        //   mainAxisSize: MainAxisSize.min,
-        //   children: [
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: const Icon(Icons.call),
-        //       color: Colors.green,
-        //     ),
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: const Icon(Icons.keyboard_double_arrow_right_rounded),
-        //       color: Colors.grey,
-        //     ),
-        //   ],
-        // ),
-        trailing: IconButton(
-          onPressed: () {
-            _launchDialer(mobileno.toString().trim());
-          },
-          icon: const Icon(Icons.call),
-          color: Colors.green,
+    return GestureDetector(
+      onTap: () {
+        print(
+            "*******************completed appointment appointment id $id *******************");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AppointmentViewerScreen(
+              appointmentId: id, // Replace with the actual appointment ID
+            ),
+          ),
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.person,
-            color: Colors.black,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                child: const CircleAvatar(
+                  backgroundColor: Color(0xFF546AE4),
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.toString().trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      date.toString().trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      medicalTests.toString().trim(),
+                      style: const TextStyle(color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => _launchDialer(mobileno),
+                icon: const Icon(Icons.call, color: Colors.green),
+              ),
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              medicalTests.trim(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              date.trim(),
-              maxLines: 1,
-            ),
-          ],
-        ),
-        title: Text(
-          name.trim(),
-          style: _biggerFont,
-        ),
-        onTap: () {
-          print(
-              "*******************completed appointment appointment id $id *******************");
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AppointmentViewerScreen(
-                appointmentId: id, // Replace with the actual appointment ID
-              ),
-            ),
-          );
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => AppointmentDetails(
-          //         clientName: name,
-          //         medicalreports: medicalTests,
-          //         date: date,
-          //         time: time,
-          //         appointment_id: id,
-          //         appointment_no: appointment_no,
-          //       ),
-          //     ));
-        },
       ),
     );
   }

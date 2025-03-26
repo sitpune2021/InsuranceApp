@@ -5,6 +5,7 @@ import 'package:insurance/appointment_details/appointment_details.dart';
 import 'package:insurance/appointment_screen/appointment_screen.dart';
 import 'package:insurance/appointment_screen/model/appointment.dart';
 import 'package:insurance/services/auth.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  DateTime now = DateTime.now();
   int totalAppCount = 0;
   int todaysAppCount = 0;
   int scheduleCount = 0;
@@ -26,22 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String time = "03:05:47";
   final TextStyle _biggerFont = const TextStyle(fontSize: 18.0);
   List<List<String>> services = [
-    [
-      'Total Appointments',
-      'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'
-    ],
-    [
-      "Today's Appointment",
-      'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'
-    ],
-    [
-      'Assigned Appointment',
-      'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-multimeter-car-service-wanicon-flat-wanicon.png'
-    ],
-    [
-      'Rejected Appointment',
-      'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-painter-male-occupation-avatar-itim2101-flat-itim2101.png'
-    ],
+    ['Total Appointments', '0xFFD64A45'], // Corrected hex code
+    ["Today's Appointment", '0xFFFEAD4A'],
+    ['Assigned Appointment', '0xFF00DDED'],
+    ['Rejected Appointment', '0xFF495EDE'],
   ];
 
   @override
@@ -103,144 +93,215 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
-        title: const Text("Insurance"),
-        leading: Padding(
-          padding: const EdgeInsets.only(
-              top: 4, bottom: 4, left: 4), // Adjust top and bottom padding
-          child: Container(
-            width: 50,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/logo.png"),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-        ),
-        leadingWidth: 50,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
+      //   title: const Text("Insurance"),
+      //   leading: Padding(
+      //     padding: const EdgeInsets.only(
+      //         top: 4, bottom: 4, left: 4), // Adjust top and bottom padding
+      //     child: Container(
+      //       width: 50,
+      //       decoration: const BoxDecoration(
+      //         image: DecorationImage(
+      //           image: AssetImage("assets/images/logo.png"),
+      //           fit: BoxFit.fill,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      //   leadingWidth: 50,
+      // ),
       body: RefreshIndicator(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 20),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.0,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
-                      ),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: services.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return FadeInUp(
-                          delay: Duration(milliseconds: 200 * index),
-                          child: GestureDetector(
-                            child: serviceContainer(
-                              services[index][1],
-                              services[index][0],
-                              index,
-                            ),
-                            onTap: () async {
-                              SharedPreferences pref =
-                                  await SharedPreferences.getInstance();
-                              pref.setInt("page", index);
-
-                              final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AppointmentScreen(
-                                      i: 1,
-                                    ),
-                                  ));
-
-                              if (result == "refresh") {
-                                setState(() {
-                                  print("backprede: refreshed ");
-                                  count();
-                                  Auth().getTotalAppointments();
-                                });
-                              }
-                            },
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.05), // 5% padding
+                // color: Colors.blue,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF546AE4),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(
+                        screenWidth * 0.1), // 10% of screen width
+                    bottomRight: Radius.circular(screenWidth * 0.1),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Insurance",
+                            style: TextStyle(
+                                fontSize:
+                                    screenWidth * 0.05, // Scalable text size
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          Text(
+                            "Hello,\n${DateFormat.yMMMEd().format(now)}",
+                            style: TextStyle(
+                              fontSize:
+                                  screenWidth * 0.05, // Scalable text size
+                              color: Colors.white,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: screenWidth * 0.02), // Add spacing
+                    Image.asset(
+                      "assets/images/dash.png",
+                      height:
+                          screenHeight * 0.3, // Adjust based on screen height
+                      width: screenWidth * 0.4, // 40% of screen width
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40),
+                    topRight: Radius.circular(40),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        color: Colors.white,
+                        margin: const EdgeInsets.only(left: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.0,
+                            crossAxisSpacing: 10.0,
+                            mainAxisSpacing: 10.0,
+                          ),
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: services.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return FadeInUp(
+                              delay: Duration(milliseconds: 200 * index),
+                              child: GestureDetector(
+                                child: serviceContainer(
+                                  int.tryParse(services[index][1])!,
+                                  services[index][0],
+                                  index,
+                                ),
+                                onTap: () async {
+                                  SharedPreferences pref =
+                                      await SharedPreferences.getInstance();
+                                  pref.setInt("page", index);
+
+                                  final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AppointmentScreen(
+                                          i: 1,
+                                        ),
+                                      ));
+
+                                  if (result == "refresh") {
+                                    setState(() {
+                                      print("backprede: refreshed ");
+                                      count();
+                                      Auth().getTotalAppointments();
+                                    });
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "List of Appointments",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Divider(),
+                    FutureBuilder<List<Appointment>>(
+                      future: Auth().getScheduleAppointments(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasData) {
+                          int length;
+                          if (snapshot.data!.length < 5) {
+                            length = snapshot.data!.length;
+                          } else {
+                            length = 5;
+                          }
+                          return length == 0
+                              ? const Text(
+                                  "No Appointments available",
+                                  style: TextStyle(color: Colors.pink),
+                                )
+                              : ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: length,
+                                  itemBuilder: (context, index) {
+                                    final appointment = snapshot.data?[index];
+                                    return _buildRow(
+                                        appointment!.appointment_id,
+                                        appointment.clientName,
+                                        appointment.medicalTests,
+                                        appointment.time,
+                                        appointment.date,
+                                        appointment.appointment_no,
+                                        appointment.mobileno,
+                                        appointment.address ?? "not defined");
+                                  });
+                        }
+                        return const Center(
+                          child: Text("No appointments available."),
                         );
                       },
-                    ),
-                  ),
+                    )
+                  ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    "List of Appointments",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Divider(),
-                FutureBuilder<List<Appointment>>(
-                  future: Auth().getScheduleAppointments(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasData) {
-                      int length;
-                      if (snapshot.data!.length < 5) {
-                        length = snapshot.data!.length;
-                      } else {
-                        length = 5;
-                      }
-                      return length == 0
-                          ? const Text(
-                              "No Appointments available",
-                              style: TextStyle(color: Colors.pink),
-                            )
-                          : ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: length,
-                              itemBuilder: (context, index) {
-                                final appointment = snapshot.data?[index];
-                                return _buildRow(
-                                    appointment!.appointment_id,
-                                    appointment.clientName,
-                                    appointment.medicalTests,
-                                    appointment.time,
-                                    appointment.date,
-                                    appointment.appointment_no,
-                                    appointment.mobileno,
-                                    appointment.address ?? "not defined");
-                              });
-                    }
-                    return const Center(
-                      child: Text("No appointments available."),
-                    );
-                  },
-                )
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -254,13 +315,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  Widget serviceContainer(String image, String name, int index) {
+  Widget serviceContainer(int image, String name, int index) {
     return GestureDetector(
       child: Container(
         margin: const EdgeInsets.only(right: 20),
         padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Color(image),
           border: Border.all(
             color: Colors.blue.withOpacity(0),
             width: 2.0,
@@ -278,14 +339,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                     fontSize: 35,
                     fontWeight: FontWeight.w500,
-                    color: Colors.green),
+                    color: Colors.white),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(height: 20),
             Text(
               name,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
               textAlign: TextAlign.center,
             ),
           ],
@@ -296,71 +360,94 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildRow(int id, String name, String medicalTests, String time,
       String date, String appointment_no, String mobileno, String address) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  width: 1,
-                  color: Color.fromARGB(255, 215, 213, 213),
-                  style: BorderStyle.solid))),
-      child: ListTile(
-        trailing: IconButton(
-          onPressed: () {
-            _launchDialer(mobileno);
-          },
-          icon: const Icon(Icons.call),
-          color: Colors.green,
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AppointmentDetails(
+                clientName: name,
+                medicalreports: medicalTests,
+                date: date,
+                time: time,
+                appointment_id: id,
+                appointment_no: appointment_no,
+                address: address,
+              ),
+            ));
+
+        if (result == "refresh") {
+          setState(() {
+            print("backprede: refreshed ");
+            count();
+            Auth().getTotalAppointments();
+          }); // Reload data when returning
+          print("result:of backpress2$result");
+        }
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.person,
-            color: Colors.black,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                // decoration: BoxDecoration(
+                //     border: Border.all(
+                //         color: Colors.blue, width: 2, style: BorderStyle.solid),
+                //     borderRadius: BorderRadius.circular(50)),
+                child: const CircleAvatar(
+                  backgroundColor: Color(0xFF546AE4),
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      date,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      medicalTests,
+                      style: const TextStyle(color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => _launchDialer(mobileno),
+                icon: const Icon(Icons.call, color: Colors.green),
+              ),
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "${medicalTests.trim()}",
-              style: const TextStyle(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              "${date.trim()}",
-              style: const TextStyle(),
-              maxLines: 1,
-            ),
-          ],
-        ),
-        title: Text(
-          name.toString().trim(),
-          style: _biggerFont,
-        ),
-        onTap: () async {
-          final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AppointmentDetails(
-                  clientName: name,
-                  medicalreports: medicalTests,
-                  date: date,
-                  time: time,
-                  appointment_id: id,
-                  appointment_no: appointment_no,
-                  address: address,
-                ),
-              ));
-
-          if (result == "refresh") {
-            setState(() {
-              print("backprede: refreshed ");
-              count();
-              Auth().getTotalAppointments();
-            }); // Reload data when returning
-            print("result:of backpress2$result");
-          }
-        },
       ),
     );
   }

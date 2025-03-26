@@ -174,9 +174,15 @@ class _AppointmentViewerScreenState extends State<AppointmentViewerScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 1.0,
-        backgroundColor: const Color.fromRGBO(198, 201, 254, 1),
-        title: const Text("Appointment Details"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 5,
+        shadowColor: Colors.grey,
+        backgroundColor: const Color(0xFF546AE4),
+        title: const Text(
+          "Appointment Detail",
+          style: TextStyle(color: Colors.white),
+        ),
+        toolbarHeight: 80,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
