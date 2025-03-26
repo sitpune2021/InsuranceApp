@@ -589,10 +589,14 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                       Text(
                         status.toString().trim(),
                         style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: status.toString().trim() == "Assigned"
-                                ? Colors.amber[900]
-                                : Colors.black),
+                          fontWeight: FontWeight.w500,
+                          color: status.toString().trim() == "Assigned"
+                              ? Colors.amber[900]
+                              : (status.toString().trim() == "Submitted" ||
+                                      status.toString().trim() == "Completed")
+                                  ? Colors.green
+                                  : Colors.black, // Default color
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
